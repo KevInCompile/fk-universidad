@@ -1,0 +1,53 @@
+---
+import { nav } from "../data/site";
+---
+
+<header class="sticky top-0 z-50 border-b bg-background/90 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
+    <a href="/" class="flex items-center gap-3">
+      <span class="checker block h-8 w-8 border border-foreground" aria-hidden="true"></span>
+      <span class="font-display text-lg uppercase leading-none tracking-wide">
+        Federación<br />
+        <span class="text-primary">de Kartismo</span>
+      </span>
+    </a>
+
+    <nav class="hidden gap-6 lg:flex">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class="group font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <span class="mr-1 text-primary">{item.n}</span>
+            {item.label}
+          </a>
+        ))
+      }
+
+      <a
+        href="/login"
+        class="border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+      >
+        Acceso
+      </a>
+    </nav>
+
+    <a
+      href="/login"
+      class="border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest lg:hidden"
+    >
+      Acceso
+    </a>
+
+    <button
+      type="button"
+      class="font-mono text-xs uppercase tracking-widest lg:hidden"
+      aria-label="Abrir menú"
+    >
+      Menú
+    </button>
+  </div>
+
+  <div class="curb h-1" aria-hidden="true"></div>
+</header>

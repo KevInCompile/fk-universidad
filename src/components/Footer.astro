@@ -1,0 +1,41 @@
+---
+import { nav } from "../data/site";
+---
+
+<footer class="mt-24 border-t">
+  <div class="checker h-6 opacity-90" aria-hidden="true"></div>
+
+  <div class="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-3">
+    <a href="/" class="flex items-center gap-3">
+      <span class="checker block h-8 w-8 border border-foreground" aria-hidden="true"></span>
+      <span class="font-display text-lg uppercase leading-none tracking-wide">
+        Federación<br />
+        <span class="text-primary">de Kartismo</span>
+      </span>
+    </a>
+
+    <div class="grid grid-cols-2 gap-2">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class="font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary"
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="/login"
+        class="font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-primary"
+      >
+        Acceso
+      </a>
+    </div>
+
+    <p class="font-mono text-xs uppercase tracking-widest text-muted-foreground md:text-right">
+      © 2026 Federación de Kartismo<br />
+      Todos los derechos reservados
+    </p>
+  </div>
+</footer>
