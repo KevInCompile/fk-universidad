@@ -1,0 +1,331 @@
+---
+import Base from "../layouts/Base.astro";
+import { pilotosSemilla } from "../data/site";
+---
+
+<Base
+  title="Acceso — Federación de Kartismo"
+  description="Acceso simulado al portal de la Federación de Kartismo: directiva y pilotos."
+>
+  <header class="border-b">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
+      <a href="/" class="flex items-center gap-3">
+        <span class="checker block h-8 w-8 border border-foreground" aria-hidden="true"></span>
+        <span class="font-display text-lg uppercase leading-none tracking-wide">
+          Federación<br />
+          <span class="text-primary">de Kartismo</span>
+        </span>
+      </a>
+
+      <a
+        href="/"
+        class="border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+      >
+        Ir al sitio
+      </a>
+    </div>
+    <div class="curb h-1" aria-hidden="true"></div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-5 py-16">
+    <div class="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
+      <!-- Columna informativa -->
+      <section>
+        <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          Acceso simulado
+        </p>
+        <h1 class="mt-4 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+          Entra al <span class="text-primary">portal</span>
+        </h1>
+        <p class="mt-6 max-w-md text-muted-foreground">
+          El prototipo no tiene base de datos ni backend de autenticación: selecciona un rol de
+          prueba y la sesión queda guardada en este navegador. Puede cambiarla cuando quiera.
+        </p>
+
+        <div class="mt-10 border border-border">
+          <div class="border-b border-border bg-card px-5 py-4">
+            <p class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Accesos directos para probar
+            </p>
+          </div>
+          <div class="grid gap-px bg-border sm:grid-cols-2">
+            <a
+              href="/admin"
+              class="group flex items-center justify-between bg-card px-5 py-6 transition-colors hover:bg-primary"
+            >
+              <span>
+                <span class="font-display text-2xl uppercase leading-none">Panel directiva</span>
+                <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+                  /admin
+                </span>
+              </span>
+              <span class="font-display text-2xl">→</span>
+            </a>
+            <a
+              href="/piloto"
+              class="group flex items-center justify-between bg-card px-5 py-6 transition-colors hover:bg-primary"
+            >
+              <span>
+                <span class="font-display text-2xl uppercase leading-none">Panel piloto</span>
+                <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+                  /piloto
+                </span>
+              </span>
+              <span class="font-display text-2xl">→</span>
+            </a>
+          </div>
+        </div>
+
+        <div
+          id="sesion-actual"
+          class="mt-8 hidden border border-border bg-card px-5 py-4"
+        >
+          <p class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Sesión actual
+          </p>
+          <p class="mt-2 text-lg font-medium" id="sesion-detalle"></p>
+          <button
+            type="button"
+            id="salir-sesion"
+            class="mt-4 border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+          >
+            Salir / cambiar de rol
+          </button>
+        </div>
+      </section>
+
+      <!-- Columna de acceso -->
+      <section>
+        <div class="flex border border-border" role="tablist" aria-label="Rol de acceso">
+          <button
+            type="button"
+            id="tab-directivo"
+            role="tab"
+            aria-selected="true"
+            class="flex-1 bg-primary px-4 py-4 font-mono text-xs uppercase tracking-widest text-primary-foreground"
+          >
+            Directiva
+          </button>
+          <button
+            type="button"
+            id="tab-piloto"
+            role="tab"
+            aria-selected="false"
+            class="flex-1 bg-card px-4 py-4 font-mono text-xs uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Piloto
+          </button>
+        </div>
+
+        <!-- Directiva -->
+        <div id="panel-directivo" class="border-x border-b border-border p-6">
+          <h2 class="font-display text-3xl uppercase">Ingreso de directiva</h2>
+          <p class="mt-2 text-sm text-muted-foreground">
+            Escriba su nombre y queda identificado como directivo de la federación.
+          </p>
+
+          <form id="form-directivo" class="mt-6">
+            <label
+              for="nombre-directivo"
+              class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            >
+              Nombre y apellido
+            </label>
+            <input
+              id="nombre-directivo"
+              name="nombre"
+              type="text"
+              autocomplete="name"
+              placeholder="Ej. Camila Restrepo"
+              class="mt-2 w-full border bg-background px-4 py-3 text-foreground outline-none focus:border-primary"
+            />
+
+            <button
+              type="submit"
+              class="mt-6 w-full bg-primary px-4 py-3 font-mono text-xs uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Entrar como directiva
+            </button>
+          </form>
+        </div>
+
+        <!-- Piloto -->
+        <div id="panel-piloto" class="hidden border-x border-b border-border p-6">
+          <h2 class="font-display text-3xl uppercase">Ingreso de piloto</h2>
+          <p class="mt-2 text-sm text-muted-foreground">
+            Elija uno de los pilotos de prueba para entrar con su sesión.
+          </p>
+
+          <ul id="lista-pilotos" class="mt-6 divide-y divide-border border-y border-border">
+            {
+              pilotosSemilla.map((piloto) => (
+                <li>
+                  <button
+                    type="button"
+                    class="entrar-piloto group flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-primary"
+                    data-documento={piloto.documento}
+                    data-nombre={piloto.nombre}
+                    data-piloto-id={piloto.id}
+                  >
+                    <span>
+                      <span class="block text-lg font-medium transition-colors group-hover:text-primary-foreground">
+                        {piloto.nombre}
+                      </span>
+                      <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-primary-foreground">
+                        {piloto.id} · {piloto.documento}
+                      </span>
+                    </span>
+                    <span class="font-display text-2xl transition-colors group-hover:text-primary-foreground">
+                      →
+                    </span>
+                  </button>
+                </li>
+              ))
+            }
+          </ul>
+
+          <p class="mt-6 text-sm text-muted-foreground">
+            ¿¿Todavía no tiene piloto? Regístrese primero y recibe su identificador único.
+          </p>
+          <a
+            href="/piloto/registro"
+            class="mt-3 inline-block border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+          >
+            Registrar piloto nuevo
+          </a>
+        </div>
+
+        <p
+          id="mensaje-login"
+          class="mt-4 hidden border px-4 py-3 font-mono text-xs uppercase tracking-widest"
+          role="status"
+        ></p>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<script>
+  import { leerEstado, leerSesion, escribirSesion } from "../lib/store";
+
+  const tabDirectivo = document.getElementById("tab-directivo");
+  const tabPiloto = document.getElementById("tab-piloto");
+  const panelDirectivo = document.getElementById("panel-directivo");
+  const panelPiloto = document.getElementById("panel-piloto");
+  const mensaje = document.getElementById("mensaje-login");
+  const listaPilotos = document.getElementById("lista-pilotos");
+
+  function mostrarMensaje(texto: string, ok: boolean): void {
+    if (!mensaje) return;
+    mensaje.textContent = texto;
+    mensaje.classList.remove("hidden");
+    mensaje.classList.toggle("border-primary", ok);
+    mensaje.classList.toggle("text-primary", ok);
+    mensaje.classList.toggle("border-destructive", !ok);
+    mensaje.classList.toggle("text-destructive", !ok);
+  }
+
+  function activarRol(rol: "directivo" | "piloto"): void {
+    const esDirectivo = rol === "directivo";
+    tabDirectivo?.setAttribute("aria-selected", String(esDirectivo));
+    tabPiloto?.setAttribute("aria-selected", String(!esDirectivo));
+
+    tabDirectivo?.classList.toggle("bg-primary", esDirectivo);
+    tabDirectivo?.classList.toggle("text-primary-foreground", esDirectivo);
+    tabDirectivo?.classList.toggle("bg-card", !esDirectivo);
+    tabDirectivo?.classList.toggle("text-muted-foreground", !esDirectivo);
+
+    tabPiloto?.classList.toggle("bg-primary", !esDirectivo);
+    tabPiloto?.classList.toggle("text-primary-foreground", !esDirectivo);
+    tabPiloto?.classList.toggle("bg-card", esDirectivo);
+    tabPiloto?.classList.toggle("text-muted-foreground", esDirectivo);
+
+    panelDirectivo?.classList.toggle("hidden", !esDirectivo);
+    panelPiloto?.classList.toggle("hidden", esDirectivo);
+  }
+
+  tabDirectivo?.addEventListener("click", () => activarRol("directivo"));
+  tabPiloto?.addEventListener("click", () => activarRol("piloto"));
+
+  // Ingreso de directiva
+  document.getElementById("form-directivo")?.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+    const campo = document.getElementById("nombre-directivo") as HTMLInputElement | null;
+    const nombre = (campo?.value ?? "").trim();
+    if (!nombre) {
+      mostrarMensaje("Escriba su nombre para entrar", false);
+      campo?.focus();
+      return;
+    }
+    escribirSesion({ rol: "directivo", nombre });
+    window.location.href = "/admin";
+  });
+
+  // Pilotos ya registrados que no son parte de la semilla
+  function pintarPilotosExtra(): void {
+    if (!listaPilotos) return;
+    const semilla = new Set(
+      Array.from(listaPilotos.querySelectorAll("[data-documento]")).map((nodo) =>
+        nodo.getAttribute("data-documento"),
+      ),
+    );
+    for (const piloto of leerEstado().pilotos) {
+      if (semilla.has(piloto.documento)) continue;
+      const item = document.createElement("li");
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className =
+        "entrar-piloto group flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-primary";
+      boton.dataset.documento = piloto.documento;
+      boton.dataset.nombre = piloto.nombre;
+      boton.dataset.pilotoId = piloto.id;
+      boton.innerHTML = `
+        <span>
+          <span class="block text-lg font-medium transition-colors group-hover:text-primary-foreground">${piloto.nombre}</span>
+          <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground transition-colors group-hover:text-primary-foreground">${piloto.id} · ${piloto.documento}</span>
+        </span>
+        <span class="font-display text-2xl transition-colors group-hover:text-primary-foreground">→</span>
+      `;
+      item.appendChild(boton);
+      listaPilotos.appendChild(item);
+    }
+  }
+
+  pintarPilotosExtra();
+
+  // Ingreso de piloto
+  listaPilotos?.addEventListener("click", (evento) => {
+    const objetivo = (evento.target as HTMLElement | null)?.closest(
+      ".entrar-piloto",
+    ) as HTMLElement | null;
+    if (!objetivo) return;
+
+    const documento = objetivo.getAttribute("data-documento") ?? "";
+    const nombre = objetivo.getAttribute("data-nombre") ?? "Piloto";
+    const pilotoId =
+      objetivo.getAttribute("data-piloto-id") ||
+      leerEstado().pilotos.find((piloto) => piloto.documento === documento)?.id ||
+      "";
+
+    escribirSesion({ rol: "piloto", nombre, pilotoId });
+    window.location.href = "/piloto";
+  });
+
+  // Sesión previa + salida
+  const sesion = leerSesion();
+  const cajaSesion = document.getElementById("sesion-actual");
+  const detalleSesion = document.getElementById("sesion-detalle");
+  if (sesion && cajaSesion && detalleSesion) {
+    cajaSesion.classList.remove("hidden");
+    detalleSesion.textContent =
+      sesion.rol === "directivo"
+        ? `${sesion.nombre} · Directiva`
+        : `${sesion.nombre} · Piloto`;
+    activarRol(sesion.rol === "directivo" ? "directivo" : "piloto");
+  }
+
+  document.getElementById("salir-sesion")?.addEventListener("click", () => {
+    escribirSesion(null);
+    window.location.href = "/login";
+  });
+</script>

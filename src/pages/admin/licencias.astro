@@ -1,0 +1,262 @@
+---
+import AdminLayout from "../../components/admin/AdminLayout.astro";
+---
+
+<AdminLayout title="Licencias — Panel de directiva" section="Licencias">
+  <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+    Validación de documentos
+  </p>
+  <h1 class="mt-4 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+    Bandeja de <span class="text-primary">licencias</span>
+  </h1>
+  <p class="mt-6 max-w-2xl text-muted-foreground">
+    Revise el documento y la fotografía de cada piloto, apruebe o rechace la solicitud con una
+    observación y consultá el histórico de las licencias ya resueltas.
+  </p>
+
+  <section class="mt-12">
+    <div class="mb-6 flex items-center gap-4">
+      <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Solicitudes en validación (<span id="total-pendientes">0</span>)
+      </h2>
+      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+    </div>
+
+    <div id="bandeja" class="grid gap-6">
+      <p class="border border-border px-4 py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        Cargando solicitudes…
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-16">
+    <div class="mb-6 flex items-center gap-4">
+      <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Histórico de licencias resueltas (<span id="total-resueltas">0</span>)
+      </h2>
+      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+    </div>
+
+    <div id="historico" class="divide-y divide-border border-y border-border">
+      <p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        Todavía no hay licencias resueltas.
+      </p>
+    </div>
+  </section>
+
+  <p
+    id="mensaje-licencia"
+    class="mt-10 hidden border px-4 py-3 font-mono text-xs uppercase tracking-widest"
+    role="status"
+  ></p>
+</AdminLayout>
+
+<script>
+  import { esc, exigirDirectivo, fechaLegible } from "../../components/admin/adminClient";
+  import { bandejaLicencias, decidirLicencia } from "../../components/admin/adminLogica";
+  import { leerEstado, validarLicencia } from "../../lib/store";
+  import type { Licencia } from "../../lib/types";
+
+  const sesion = exigirDirectivo();
+
+  const bandeja = document.getElementById("bandeja");
+  const historico = document.getElementById("historico");
+  const totalPendientes = document.getElementById("total-pendientes");
+  const totalResueltas = document.getElementById("total-resueltas");
+  const mensaje = document.getElementById("mensaje-licencia");
+
+  function mostrarMensaje(texto: string, ok: boolean): void {
+    if (!mensaje) return;
+    mensaje.textContent = texto;
+    mensaje.classList.remove("hidden");
+    mensaje.classList.toggle("border-primary", ok);
+    mensaje.classList.toggle("text-primary", ok);
+    mensaje.classList.toggle("border-destructive", !ok);
+    mensaje.classList.toggle("text-destructive", !ok);
+  }
+
+  function pintar(): void {
+    if (!sesion) return;
+    const estado = leerEstado();
+    const { pendientes, resueltas } = bandejaLicencias(estado);
+
+    if (totalPendientes) totalPendientes.textContent = String(pendientes.length);
+    if (totalResueltas) totalResueltas.textContent = String(resueltas.length);
+
+    if (bandeja) {
+      bandeja.innerHTML =
+        pendientes.length === 0
+          ? '<p class="border border-border px-4 py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">No hay solicitudes pendientes de validación.</p>'
+          : pendientes
+              .map(({ licencia, piloto }) => {
+                return `
+        <article class="border border-border bg-card" data-licencia-id="${esc(licencia.id)}">
+          <div class="grid gap-6 p-6 md:grid-cols-[1fr_1fr]">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Datos del piloto
+              </p>
+              <h3 class="mt-2 font-display text-3xl uppercase leading-none">${esc(
+                piloto?.nombre ?? "Piloto desconocido",
+              )}</h3>
+              <dl class="mt-4 space-y-1 font-mono text-xs text-muted-foreground">
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Identificador</dt><dd>${esc(
+                  piloto?.id ?? licencia.pilotoId,
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Documento</dt><dd>${esc(
+                  piloto?.documento ?? "—",
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Correo</dt><dd>${esc(
+                  piloto?.email ?? "—",
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Teléfono</dt><dd>${esc(
+                  piloto?.telefono ?? "—",
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Nacimiento</dt><dd>${esc(
+                  piloto?.fechaNacimiento ?? "—",
+                )}</dd></div>
+              </dl>
+            </div>
+
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Datos de la licencia
+              </p>
+              <dl class="mt-4 space-y-1 font-mono text-xs text-muted-foreground">
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Licencia</dt><dd>${esc(
+                  licencia.id,
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Categoría</dt><dd>${esc(
+                  licencia.categoria,
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Solicitada</dt><dd>${esc(
+                  fechaLegible(licencia.solicitadaEn),
+                )}</dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Documento</dt><dd>${esc(
+                  licencia.documentoNombre,
+                )} <span class="text-foreground/40">(${esc(licencia.documentoTipo)})</span></dd></div>
+                <div class="flex gap-2"><dt class="w-32 text-foreground/60">Fotografía</dt><dd>${esc(
+                  licencia.fotoNombre,
+                )}</dd></div>
+              </dl>
+              ${
+                licencia.fotoPreview
+                  ? `<img src="${esc(licencia.fotoPreview)}" alt="Fotografía de ${esc(
+                      piloto?.nombre ?? "piloto",
+                    )}" class="mt-4 h-40 w-32 border object-cover" />`
+                  : ""
+              }
+            </div>
+          </div>
+
+          <div class="border-t border-border p-6">
+            <label for="observacion-${esc(licencia.id)}" class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Observación
+            </label>
+            <textarea
+              id="observacion-${esc(licencia.id)}"
+              data-observacion="${esc(licencia.id)}"
+              rows="2"
+              placeholder="Motivo de la decisión (opcional al aprobar, requerido al rechazar)."
+              class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+            ></textarea>
+
+            <div class="mt-4 flex flex-wrap gap-3">
+              <button type="button" data-decision="aprobada" class="aprobar-licencia bg-primary px-6 py-3 font-mono text-xs uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90">
+                Aprobar licencia
+              </button>
+              <button type="button" data-decision="rechazada" class="rechazar-licencia border border-destructive px-6 py-3 font-mono text-xs uppercase tracking-widest text-destructive transition-colors hover:bg-destructive hover:text-background">
+                Rechazar solicitud
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+              })
+              .join("");
+    }
+
+    if (historico) {
+      historico.innerHTML =
+        resueltas.length === 0
+          ? '<p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">Todavía no hay licencias resueltas.</p>'
+          : resueltas
+              .map(({ licencia, piloto }) => {
+                const activa = licencia.estado === "activa";
+                return `
+        <article class="grid gap-2 py-5 md:grid-cols-[180px_1fr_160px] md:items-center">
+          <span class="font-mono text-xs uppercase tracking-widest text-primary">${esc(
+            licencia.id,
+          )}</span>
+          <span>
+            <span class="block text-lg font-medium">${esc(piloto?.nombre ?? "Piloto desconocido")}</span>
+            <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              ${esc(licencia.categoria)} · solicitada el ${esc(fechaLegible(licencia.solicitadaEn))}
+            </span>
+            ${
+              licencia.observacion
+                ? `<span class="mt-1 block text-sm text-muted-foreground">“${esc(
+                    licencia.observacion,
+                  )}”</span>`
+                : ""
+            }
+          </span>
+          <span class="font-mono text-[10px] uppercase tracking-widest ${
+            activa ? "text-primary" : "text-destructive"
+          }">
+            ${activa ? "Activa" : "Rechazada"} · ${esc(fechaLegible(licencia.validadaEn ?? ""))}
+          </span>
+        </article>
+      `;
+              })
+              .join("");
+    }
+  }
+
+  function decidir(licenciaId: string, decision: "aprobada" | "rechazada"): void {
+    if (!sesion) return;
+    const campo = document.querySelector(
+      `[data-observacion="${CSS.escape(licenciaId)}"]`,
+    ) as HTMLTextAreaElement | null;
+    const observacion = (campo?.value ?? "").trim();
+
+    const decision_ = decidirLicencia(leerEstado(), licenciaId, decision, observacion);
+    if (!decision_.ok) {
+      mostrarMensaje(decision_.error, false);
+      campo?.focus();
+      return;
+    }
+
+    const licencia: Licencia | undefined = validarLicencia(
+      licenciaId,
+      decision,
+      observacion || undefined,
+    );
+    if (!licencia) {
+      mostrarMensaje("No se encontró la solicitud", false);
+      return;
+    }
+
+    mostrarMensaje(
+      decision === "aprobada"
+        ? `Licencia ${licencia.id} aprobada`
+        : `Licencia ${licencia.id} rechazada`,
+      true,
+    );
+    pintar();
+  }
+
+  bandeja?.addEventListener("click", (evento) => {
+    const objetivo = evento.target as HTMLElement | null;
+    const boton = objetivo?.closest("button[data-decision]") as HTMLElement | null;
+    if (!boton) return;
+    const articulo = boton.closest("[data-licencia-id]") as HTMLElement | null;
+    const licenciaId = articulo?.getAttribute("data-licencia-id") ?? "";
+    if (!licenciaId) return;
+    decidir(licenciaId, boton.getAttribute("data-decision") === "rechazada" ? "rechazada" : "aprobada");
+  });
+
+  pintar();
+</script>

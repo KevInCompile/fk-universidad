@@ -1,0 +1,375 @@
+---
+import AdminLayout from "../../components/admin/AdminLayout.astro";
+import { tracks } from "../../data/site";
+
+const estados = [
+  { valor: "programada", etiqueta: "Programada" },
+  { valor: "inscripciones_cerradas", etiqueta: "Inscripciones cerradas" },
+  { valor: "en_disputa", etiqueta: "En disputa" },
+  { valor: "finalizada", etiqueta: "Finalizada" },
+];
+---
+
+<AdminLayout title="Calendario — Panel de directiva" section="Calendario">
+  <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+    Temporada 2027
+  </p>
+  <h1 class="mt-4 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+    Calendario <span class="text-primary">oficial</span>
+  </h1>
+  <p class="mt-6 max-w-2xl text-muted-foreground">
+    Agregá las fechas de la temporada, actualizá su estado y eliminá las que se suspendan. El
+    código QR de inscripción lo genera el sistema: no se edita a mano.
+  </p>
+
+  <div class="mt-12 grid gap-10 lg:grid-cols-[1fr_1.2fr]">
+    <!-- Formulario -->
+    <section class="border border-border bg-card">
+      <div class="border-b border-border px-6 py-4">
+        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          <span id="titulo-formulario">Nueva ronda</span>
+        </h2>
+      </div>
+
+      <form id="form-ronda" class="p-6">
+        <div class="grid gap-5">
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label
+                for="codigo"
+                class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+              >
+                Código
+              </label>
+              <input
+                id="codigo"
+                name="codigo"
+                type="text"
+                placeholder="R07"
+                required
+                class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label
+                for="fecha"
+                class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+              >
+                Fecha
+              </label>
+              <input
+                id="fecha"
+                name="fecha"
+                type="text"
+                placeholder="14 MAR"
+                required
+                class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="nombre"
+              class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            >
+              Nombre de la ronda
+            </label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              placeholder="Apertura Nacional"
+              required
+              class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+            />
+          </div>
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label
+                for="ciudad"
+                class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+              >
+                Ciudad
+              </label>
+              <input
+                id="ciudad"
+                name="ciudad"
+                type="text"
+                placeholder="Bogotá"
+                required
+                class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label
+                for="pista"
+                class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+              >
+                Pista homologada
+              </label>
+              <select
+                id="pista"
+                name="pista"
+                required
+                class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+              >
+                <option value="">Seleccione una pista</option>
+                {
+                  tracks.map((pista) => (
+                    <option value={pista.code}>
+                      {pista.code} · {pista.name} ({pista.city})
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label
+              for="estado"
+              class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            >
+              Estado
+            </label>
+            <select
+              id="estado"
+              name="estado"
+              required
+              class="mt-2 w-full border bg-background px-4 py-3 outline-none focus:border-primary"
+            >
+              {estados.map((estado) => <option value={estado.valor}>{estado.etiqueta}</option>)}
+            </select>
+          </div>
+
+          <p class="border border-border bg-background px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            El código QR de inscripción se genera al guardar la ronda.
+          </p>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button
+            type="submit"
+            id="guardar-ronda"
+            class="bg-primary px-6 py-3 font-mono text-xs uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Agregar ronda
+          </button>
+          <button
+            type="button"
+            id="cancelar-edicion"
+            class="hidden border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+          >
+            Cancelar edición
+          </button>
+        </div>
+
+        <p
+          id="mensaje-ronda"
+          class="mt-4 hidden border px-4 py-3 font-mono text-xs uppercase tracking-widest"
+          role="status"
+        ></p>
+      </form>
+    </section>
+
+    <!-- Listado -->
+    <section>
+      <div class="mb-6 flex items-center gap-4">
+        <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          Rondas cargadas
+        </h2>
+        <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+      </div>
+
+      <div id="lista-rondas" class="divide-y divide-border border-y border-border">
+        <p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Cargando rondas…
+        </p>
+      </div>
+    </section>
+  </div>
+</AdminLayout>
+
+<script>
+  import { esc, exigirDirectivo } from "../../components/admin/adminClient";
+  import { validarRonda } from "../../components/admin/adminLogica";
+  import { tracks } from "../../data/site";
+  import { borrarRonda, guardarRonda, leerEstado } from "../../lib/store";
+  import type { Ronda } from "../../lib/types";
+
+  const sesion = exigirDirectivo();
+
+  const ETIQUETAS_ESTADO: Record<string, string> = {
+    programada: "Programada",
+    inscripciones_cerradas: "Inscripciones cerradas",
+    en_disputa: "En disputa",
+    finalizada: "Finalizada",
+  };
+
+  const form = document.getElementById("form-ronda") as HTMLFormElement | null;
+  const campoCodigo = document.getElementById("codigo") as HTMLInputElement | null;
+  const campoFecha = document.getElementById("fecha") as HTMLInputElement | null;
+  const campoNombre = document.getElementById("nombre") as HTMLInputElement | null;
+  const campoCiudad = document.getElementById("ciudad") as HTMLInputElement | null;
+  const campoPista = document.getElementById("pista") as HTMLSelectElement | null;
+  const campoEstado = document.getElementById("estado") as HTMLSelectElement | null;
+  const botonGuardar = document.getElementById("guardar-ronda");
+  const botonCancelar = document.getElementById("cancelar-edicion");
+  const tituloFormulario = document.getElementById("titulo-formulario");
+  const mensaje = document.getElementById("mensaje-ronda");
+  const lista = document.getElementById("lista-rondas");
+
+  let rondaEnEdicion: string | null = null;
+
+  function mostrarMensaje(texto: string, ok: boolean): void {
+    if (!mensaje) return;
+    mensaje.textContent = texto;
+    mensaje.classList.remove("hidden");
+    mensaje.classList.toggle("border-primary", ok);
+    mensaje.classList.toggle("text-primary", ok);
+    mensaje.classList.toggle("border-destructive", !ok);
+    mensaje.classList.toggle("text-destructive", !ok);
+  }
+
+  function limpiarFormulario(): void {
+    form?.reset();
+    rondaEnEdicion = null;
+    if (botonGuardar) botonGuardar.textContent = "Agregar ronda";
+    if (tituloFormulario) tituloFormulario.textContent = "Nueva ronda";
+    botonCancelar?.classList.add("hidden");
+  }
+
+  function pintarLista(): void {
+    if (!lista) return;
+    const rondas: Ronda[] = leerEstado().rondas;
+
+    if (rondas.length === 0) {
+      lista.innerHTML =
+        '<p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">Todavía no hay rondas cargadas.</p>';
+      return;
+    }
+
+    lista.innerHTML = rondas
+      .map(
+        (ronda) => `
+        <article class="py-6" data-ronda-id="${esc(ronda.id)}">
+          <div class="flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-widest">
+            <span class="text-primary">${esc(ronda.codigo)}</span>
+            <span class="text-muted-foreground">${esc(ronda.fecha)}</span>
+            <span class="border border-border px-2 py-0.5 text-muted-foreground">${esc(
+              ETIQUETAS_ESTADO[ronda.estado] ?? ronda.estado,
+            )}</span>
+          </div>
+          <h3 class="mt-3 font-display text-3xl uppercase leading-none">${esc(ronda.nombre)}</h3>
+          <p class="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            ${esc(ronda.ciudad)} · ${esc(ronda.pista)}
+          </p>
+          <p class="mt-3 border border-border bg-background px-3 py-2 font-mono text-xs tracking-wide">
+            QR: ${esc(ronda.codigoQr)}
+          </p>
+          <div class="mt-4 flex gap-3">
+            <button type="button" class="editar-ronda border border-foreground px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background">
+              Editar
+            </button>
+            <button type="button" class="borrar-ronda border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-destructive transition-colors hover:border-destructive">
+              Borrar
+            </button>
+          </div>
+        </article>
+      `,
+      )
+      .join("");
+  }
+
+  form?.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+    if (!sesion) return;
+
+    const codigo = (campoCodigo?.value ?? "").trim().toUpperCase();
+    const fecha = (campoFecha?.value ?? "").trim();
+    const nombre = (campoNombre?.value ?? "").trim();
+    const ciudad = (campoCiudad?.value ?? "").trim();
+    const pistaId = campoPista?.value ?? "";
+    const estado = campoEstado?.value ?? "programada";
+    const pista = tracks.find((item) => item.code === pistaId);
+
+    const validacion = validarRonda({
+      codigo,
+      fecha,
+      nombre,
+      ciudad,
+      pistaId,
+      estado,
+    });
+    if (!validacion.ok) {
+      mostrarMensaje(validacion.error, false);
+      return;
+    }
+    if (!pista) {
+      mostrarMensaje("Seleccione una pista homologada", false);
+      return;
+    }
+
+    guardarRonda({
+      ...(rondaEnEdicion ? { id: rondaEnEdicion } : {}),
+      codigo,
+      fecha,
+      nombre,
+      ciudad,
+      pista: pista.name,
+      pistaId: pista.code,
+      estado: estado as Ronda["estado"],
+    });
+
+    mostrarMensaje(
+      rondaEnEdicion ? "Ronda actualizada" : "Ronda agregada al calendario",
+      true,
+    );
+    limpiarFormulario();
+    pintarLista();
+  });
+
+  botonCancelar?.addEventListener("click", () => {
+    limpiarFormulario();
+    mostrarMensaje("Edición cancelada", true);
+  });
+
+  lista?.addEventListener("click", (evento) => {
+    const objetivo = evento.target as HTMLElement | null;
+    const articulo = objetivo?.closest("[data-ronda-id]") as HTMLElement | null;
+    if (!articulo) return;
+    const id = articulo.getAttribute("data-ronda-id") ?? "";
+    const ronda = leerEstado().rondas.find((item) => item.id === id);
+    if (!ronda) return;
+
+    if (objetivo?.classList.contains("editar-ronda")) {
+      rondaEnEdicion = ronda.id;
+      if (campoCodigo) campoCodigo.value = ronda.codigo;
+      if (campoFecha) campoFecha.value = ronda.fecha;
+      if (campoNombre) campoNombre.value = ronda.nombre;
+      if (campoCiudad) campoCiudad.value = ronda.ciudad;
+      if (campoPista) campoPista.value = ronda.pistaId;
+      if (campoEstado) campoEstado.value = ronda.estado;
+      if (botonGuardar) botonGuardar.textContent = "Guardar cambios";
+      if (tituloFormulario) tituloFormulario.textContent = `Editando: ${ronda.nombre}`;
+      botonCancelar?.classList.remove("hidden");
+      mostrarMensaje("Editando ronda", true);
+      form?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    if (objetivo?.classList.contains("borrar-ronda")) {
+      const confirmado = window.confirm(`¿Borrar la ronda "${ronda.nombre}"?`);
+      if (!confirmado) return;
+      borrarRonda(ronda.id);
+      if (rondaEnEdicion === ronda.id) limpiarFormulario();
+      mostrarMensaje("Ronda borrada", true);
+      pintarLista();
+    }
+  });
+
+  if (sesion) pintarLista();
+</script>

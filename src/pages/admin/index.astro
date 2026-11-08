@@ -1,0 +1,159 @@
+---
+import AdminLayout from "../../components/admin/AdminLayout.astro";
+
+const secciones = [
+  {
+    href: "/admin/noticias",
+    titulo: "Noticias",
+    descripcion: "Publicá, editá y borrá las noticias de la federación.",
+    icono: "01",
+  },
+  {
+    href: "/admin/calendario",
+    titulo: "Calendario",
+    descripcion: "Agregá y actualizá las rondas de la temporada con su código QR.",
+    icono: "02",
+  },
+  {
+    href: "/admin/licencias",
+    titulo: "Licencias",
+    descripcion: "Revise las solicitudes de licencia y decida cada caso.",
+    icono: "03",
+  },
+];
+---
+
+<AdminLayout title="Panel de directiva — Federación de Kartismo" section="Resumen">
+  <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+    Panel de dirección
+  </p>
+  <h1 class="mt-4 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+    Sala de <span class="text-primary">control</span>
+  </h1>
+  <p class="mt-6 max-w-2xl text-muted-foreground">
+    Desde aquí la directiva publica novedades, actualiza el calendario de la temporada y valida
+    las licencias de los pilotos.
+  </p>
+
+  <!-- Resumen -->
+  <section class="mt-12">
+    <div class="grid gap-px bg-border sm:grid-cols-3">
+      <a href="/admin/noticias" class="group bg-card p-6 transition-colors hover:bg-primary">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Noticias publicadas
+        </p>
+        <p
+          class="mt-4 font-display text-6xl uppercase leading-none transition-colors group-hover:text-primary-foreground"
+          id="total-noticias"
+        >
+          —
+        </p>
+        <p class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Ver noticias →
+        </p>
+      </a>
+
+      <a href="/admin/calendario" class="group bg-card p-6 transition-colors hover:bg-primary">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Rondas de la temporada
+        </p>
+        <p
+          class="mt-4 font-display text-6xl uppercase leading-none transition-colors group-hover:text-primary-foreground"
+          id="total-rondas"
+        >
+          —
+        </p>
+        <p class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Ver calendario →
+        </p>
+      </a>
+
+      <a href="/admin/licencias" class="group bg-card p-6 transition-colors hover:bg-primary">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Licencias en validación
+        </p>
+        <p
+          class="mt-4 font-display text-6xl uppercase leading-none transition-colors group-hover:text-primary-foreground"
+          id="total-licencias"
+        >
+          —
+        </p>
+        <p class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Ver licencias →
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Secciones -->
+  <section class="mt-16">
+    <div class="mb-8 flex items-center gap-4">
+      <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Secciones del panel
+      </h2>
+      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+    </div>
+
+    <div class="grid gap-px bg-border md:grid-cols-3">
+      {
+        secciones.map((seccion) => (
+          <a
+            href={seccion.href}
+            class="group flex flex-col justify-between gap-10 bg-card p-6 transition-colors hover:bg-primary"
+          >
+            <span class="font-mono text-xs text-primary transition-colors group-hover:text-primary-foreground">
+              {seccion.icono}
+            </span>
+            <span>
+              <span class="block font-display text-4xl uppercase leading-none transition-colors group-hover:text-primary-foreground">
+                {seccion.titulo}
+              </span>
+              <span class="mt-3 block text-sm text-muted-foreground transition-colors group-hover:text-primary-foreground">
+                {seccion.descripcion}
+              </span>
+            </span>
+            <span class="font-display text-2xl transition-colors group-hover:text-primary-foreground">
+              →
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <p
+    id="mensaje-panel"
+    class="mt-10 hidden border px-4 py-3 font-mono text-xs uppercase tracking-widest"
+    role="status"
+  ></p>
+</AdminLayout>
+
+<script>
+  import { exigirDirectivo } from "../../components/admin/adminClient";
+  import { resumenPanel } from "../../components/admin/adminLogica";
+  import { leerEstado } from "../../lib/store";
+
+  const sesion = exigirDirectivo();
+  const mensaje = document.getElementById("mensaje-panel");
+
+  if (sesion) {
+    const resumen = resumenPanel(leerEstado());
+    const publicadas = resumen.noticiasPublicadas;
+    const enValidacion = resumen.licenciasEnValidacion;
+
+    const totalNoticias = document.getElementById("total-noticias");
+    const totalRondas = document.getElementById("total-rondas");
+    const totalLicencias = document.getElementById("total-licencias");
+
+    if (totalNoticias) totalNoticias.textContent = String(publicadas);
+    if (totalRondas) totalRondas.textContent = String(resumen.rondas);
+    if (totalLicencias) totalLicencias.textContent = String(enValidacion);
+
+    if (mensaje) {
+      mensaje.classList.remove("hidden");
+      mensaje.classList.add("border-border", "text-muted-foreground");
+      mensaje.textContent = `Sesión activa: ${sesion.nombre} · Directiva`;
+    }
+  }
+</script>

@@ -1,0 +1,29 @@
+---
+/**
+ * Layout del panel de directiva. Envuelve las secciones internas con el
+ * encabezado propio del panel (marca + sección + salida de sesión).
+ */
+
+import Base from "../../layouts/Base.astro";
+import AdminHeader from "./AdminHeader.astro";
+
+interface Props {
+  title: string;
+  section: string;
+  description?: string;
+}
+
+const {
+  title,
+  section,
+  description = "Panel de administración de la Federación de Kartismo.",
+} = Astro.props;
+---
+
+<Base title={title} description={description}>
+  <AdminHeader section={section} />
+
+  <main class="mx-auto max-w-7xl px-5 py-12">
+    <slot />
+  </main>
+</Base>

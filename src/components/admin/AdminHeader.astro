@@ -1,0 +1,72 @@
+---
+/**
+ * Encabezado propio del panel de directiva (no reutiliza el Header de la
+ * home): marca de la federación, nombre de la sección y salida de sesión.
+ */
+
+interface Props {
+  section: string;
+}
+
+const { section } = Astro.props;
+---
+
+<header class="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3">
+    <a href="/admin" class="flex items-center gap-3">
+      <span class="checker block h-8 w-8 border border-foreground" aria-hidden="true"></span>
+      <span class="font-display text-lg uppercase leading-none tracking-wide">
+        Federación<br />
+        <span class="text-primary">de Kartismo</span>
+      </span>
+    </a>
+
+    <div class="flex items-center gap-4">
+      <p class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        Panel de directiva
+        <span class="text-primary">·</span>
+        <span class="text-foreground" id="seccion-activa">{section}</span>
+      </p>
+      <p
+        class="hidden font-mono text-xs uppercase tracking-widest text-muted-foreground sm:block"
+        id="nombre-directivo"
+      >
+      </p>
+      <button
+        type="button"
+        id="salir-sesion"
+        class="border border-foreground px-4 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+      >
+        Salir / cambiar de rol
+      </button>
+    </div>
+  </div>
+
+  <nav class="border-t border-border bg-card/60">
+    <div
+      class="mx-auto flex max-w-7xl flex-wrap items-center gap-6 px-5 py-2 font-mono text-xs uppercase tracking-widest text-muted-foreground"
+    >
+      <a href="/admin" class="transition-colors hover:text-primary">Resumen</a>
+      <a href="/admin/noticias" class="transition-colors hover:text-primary">Noticias</a>
+      <a href="/admin/calendario" class="transition-colors hover:text-primary">Calendario</a>
+      <a href="/admin/licencias" class="transition-colors hover:text-primary">Licencias</a>
+      <a href="/" class="ml-auto transition-colors hover:text-primary">Ver sitio →</a>
+    </div>
+  </nav>
+
+  <div class="curb h-1" aria-hidden="true"></div>
+</header>
+
+<script>
+  import { cerrarSesion, exigirDirectivo } from "./adminClient";
+
+  const sesion = exigirDirectivo();
+  const nombre = document.getElementById("nombre-directivo");
+  if (sesion && nombre) {
+    nombre.textContent = sesion.nombre;
+  }
+
+  document
+    .getElementById("salir-sesion")
+    ?.addEventListener("click", () => cerrarSesion());
+</script>
