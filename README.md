@@ -1,43 +1,56 @@
-# Astro Starter Kit: Minimal
+# Federación de Kartismo
 
-```sh
-npm create astro@latest -- --template minimal
+Prototipo web (Astro + Tailwind v4) de la federación de kartismo: home pública, panel
+administrativo para directiva y portal para pilotos.
+
+## Qué incluye
+
+- **Home** (`/`) — hero, ticker del calendario, calendario de la temporada, pistas
+  homologadas con mapa real (Leaflet + OpenStreetMap), categorías, reglamentos,
+  noticias de la federación y consulta de clubes. La sección de escuelas queda
+  comentada en `src/pages/index.astro` a pedido del usuario.
+- **Calendario completo** (`/calendario`) — grilla de las rondas de la temporada, leída
+  del mismo estado que la home (los cambios del panel de directiva se reflejan).
+- **Panel de directiva** (`/admin`) — publicar/editar/borrar noticias, actualizar el
+  calendario de rondas y validar solicitudes de licencia.
+- **Portal del piloto** (`/piloto`) — registro con identificador único ligado al
+  documento de identidad, estado y datos de la licencia, solicitud de licencia con
+  documento y fotografía, inscripción a eventos por búsqueda o por código QR, y
+  licencia activa lista para imprimir.
+
+## Decisiones del prototipo
+
+- **Acceso simulado**: no hay base de datos ni backend de autenticación. La sesión y
+  los datos viven en `localStorage` y se reinician si se borra el almacenamiento local
+  del navegador.
+- **Licencia**: se genera una vista HTML optimizada para imprimir; el PDF se obtiene
+  con "Imprimir → Guardar como PDF" del navegador.
+- **Mapa**: Leaflet con teselas de OpenStreetMap y las coordenadas aproximadas de cada
+  complejo homologado.
+- **Idioma**: registro neutro (usted) en toda la interfaz: "Seleccione", "Cargue",
+  "Ingrese", "Guarde", "Descargue", "Revise", "Apruebe o rechace".
+
+## Comandos
+
+```bash
+npm install
+npm run dev      # servidor de desarrollo
+npm run build    # build estático en dist/
+npm run preview  # sirve el build
+npm test         # pruebas unitarias (vitest)
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Estructura
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```
+src/
+  data/site.ts          datos semilla (pistas, rondas, categorías, clubes, reglamentos, noticias)
+  lib/types.ts          tipos de dominio
+  lib/id.ts             identificador único de piloto (derivado del documento)
+  lib/store.ts          estado en localStorage + operaciones de dominio
+  lib/guard.ts          guardas de sesión por rol
+  components/           header, footer, mapa y piezas de cada sección
+  pages/                home, stubs públicos, /login, /admin/**, /piloto/**
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+La especificación del trabajo en curso vive en `odd/tasks/federacion-kartismo.md`.

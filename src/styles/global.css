@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Archivo", system-ui, sans-serif;
+  --font-display: "Anton", Impact, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --tracking-tight: -0.025em;
+  --tracking-wide: 0.025em;
+  --tracking-widest: 0.1em;
+
+  --color-background: oklch(13% 0 0);
+  --color-foreground: oklch(98% 0 0);
+  --color-card: oklch(19% 0 0);
+  --color-card-foreground: oklch(98% 0 0);
+  --color-primary: oklch(60% 0.24 29);
+  --color-primary-foreground: oklch(99% 0 0);
+  --color-secondary: oklch(22% 0 0);
+  --color-secondary-foreground: oklch(98% 0 0);
+  --color-muted: oklch(22% 0 0);
+  --color-muted-foreground: oklch(68% 0 0);
+  --color-accent: oklch(60% 0.24 29);
+  --color-accent-foreground: oklch(99% 0 0);
+  --color-border: oklch(100% 0 0 / 0.14);
+  --color-ring: oklch(60% 0.24 29);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* --- Custom utilities (mirrors the Lovable prototype) --- */
+
+.grain {
+  position: relative;
+}
+
+.grain::after {
+  content: "";
+  pointer-events: none;
+  opacity: 0.18;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  position: absolute;
+  inset: 0;
+}
+
+.checker {
+  background-image: conic-gradient(
+    var(--color-foreground) 25%,
+    var(--color-background) 0 50%,
+    var(--color-foreground) 0 75%,
+    var(--color-background) 0
+  );
+  background-size: 16px 16px;
+}
+
+.checker-sm {
+  background-image: conic-gradient(
+    var(--color-foreground) 25%,
+    transparent 0 50%,
+    var(--color-foreground) 0 75%,
+    transparent 0
+  );
+  background-size: 8px 8px;
+}
+
+.curb {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-primary) 0 28px,
+    var(--color-foreground) 28px 56px
+  );
+}
+
+.light-seq {
+  animation: 3s step-end infinite lights;
+}
+
+.animate-ticker {
+  animation: 30s linear infinite ticker;
+}
+
+@keyframes ticker {
+  to {
+    transform: translate(-50%);
+  }
+}
+
+@keyframes lights {
+  0%,
+  15% {
+    background: var(--color-secondary);
+  }
+  20%,
+  to {
+    background: var(--color-primary);
+    box-shadow: 0 0 18px var(--color-primary);
+  }
+}

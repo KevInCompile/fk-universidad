@@ -189,7 +189,7 @@ export const categorias: Categoria[] = [
     nombre: "Aficionado",
     edadMin: 12,
     edadMax: 16,
-    kart: "Karts junior y看不 senior (125–150 cc)",
+    kart: "Karts junior y senior (125–150 cc)",
     licenciaRequerida: "Licencia de aficiado",
     descripcion:
       "Categoría puente entre la formación y el élite: regularity y класificaciones por puntos.",
@@ -421,7 +421,7 @@ export const noticias: Noticia[] = [
     categoria: "Pistas",
     titulo: "El Autódromo Norte estrena nueva chicana y zona de pits",
     resumen:
-      "La homologación del circuito norte incluye una nueva zona de pits de 24 boxes y较大的 tribuna.",
+      "La homologación del circuito norte incluye una nueva zona de pits de 24 boxes y una tribuna mayor.",
     publicada: true,
   },
 ];
