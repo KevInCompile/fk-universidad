@@ -14,7 +14,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
   </div>
 
   <noscript>
-    <p class="mt-6 border border-destructive px-4 py-3 font-mono text-xs uppercase tracking-widest text-destructive">
+    <p class="mt-6 border border-destructive px-4 py-3 font-mono text-xs tracking-wide text-destructive">
       Este panel necesita JavaScript: los datos del prototipo se guardan en el
       navegador.
     </p>
@@ -76,14 +76,14 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
         <a href="/piloto/licencia" class="group flex flex-col justify-between border border-primary bg-primary p-6 text-primary-foreground transition-opacity hover:opacity-90">
           <span class="font-mono text-xs uppercase tracking-widest">Licencia</span>
           <span class="mt-8 font-display text-3xl uppercase leading-none">Solicitar licencia →</span>
-          <span class="mt-3 font-mono text-[10px] uppercase tracking-widest">Cargue el documento y la fotografía</span>
+          <span class="mt-3 font-mono text-[10px] tracking-widest uppercase">Cargue el documento y la fotografía</span>
         </a>`);
     } else if (estado === "en_validacion") {
       acciones.push(`
         <a href="/piloto/licencia" class="group flex flex-col justify-between border border-border bg-card p-6 transition-colors hover:bg-secondary">
           <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">Licencia</span>
           <span class="mt-8 font-display text-3xl uppercase leading-none">Ver solicitud →</span>
-          <span class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">En revisión por la directiva</span>
+          <span class="mt-3 font-mono text-[10px] tracking-wide text-muted-foreground">En revisión por la directiva</span>
         </a>`);
     } else {
       acciones.push(`
@@ -98,7 +98,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
       <a href="/piloto/inscripciones" class="group flex flex-col justify-between border border-border bg-card p-6 transition-colors hover:bg-secondary">
         <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">Eventos</span>
         <span class="mt-8 font-display text-3xl uppercase leading-none">Inscripciones →</span>
-        <span class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Por búsqueda o código QR</span>
+        <span class="mt-3 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">Por búsqueda o código QR</span>
       </a>`);
 
     panel.innerHTML = `
@@ -141,7 +141,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
             <span class="inline-flex items-center px-4 py-2 font-mono text-xs uppercase tracking-widest ${claseEstadoLicencia(estado)}">${etiqueta}</span>
             ${
               estado === "sin_solicitud"
-                ? `<p class="font-mono text-xs uppercase tracking-widest text-muted-foreground">Todavía no solicitaste tu licencia</p>`
+                ? `<p class="font-mono text-xs tracking-wide text-muted-foreground">Todavía no solicitó su licencia</p>`
                 : ""
             }
           </div>
@@ -154,7 +154,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
                   ${dato("Fecha de validación", licencia.validadaEn ? formatoFecha(licencia.validadaEn) : "Pendiente")}
                   ${dato("Observación", licencia.observacion ? escapar(licencia.observacion) : "—")}
                 </div>`
-              : `<p class="mt-6 max-w-xl text-muted-foreground">Cargue su documento de identidad y su fotografía para que la directiva valide tu licencia.</p>`
+              : `<p class="mt-6 max-w-xl text-muted-foreground">Cargue su documento de identidad y su fotografía para que la directiva valide su licencia.</p>`
           }
         </div>
       </section>

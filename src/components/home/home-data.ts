@@ -59,7 +59,7 @@ export function proximaRonda(rondas: Ronda[]): Ronda | undefined {
 
 export function htmlRondaDestacada(ronda: Ronda | undefined): string {
   if (!ronda) {
-    return `<p class="border border-border bg-card p-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+    return `<p class="border border-border bg-card p-6 font-mono text-xs tracking-wide text-muted-foreground">
       No hay rondas programadas por el momento.
     </p>`;
   }
@@ -100,7 +100,7 @@ export function htmlRondaFila(ronda: Ronda): string {
 
 export function htmlListaRondas(rondas: Ronda[]): string {
   if (rondas.length === 0) {
-    return `<li class="border-b border-border py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+    return `<li class="border-b border-border py-6 font-mono text-xs tracking-wide text-muted-foreground">
       Todavía no hay rondas cargadas.
     </li>`;
   }
@@ -130,7 +130,7 @@ export function htmlNoticia(noticia: Noticia): string {
 
 export function htmlListaNoticias(noticias: Noticia[]): string {
   if (noticias.length === 0) {
-    return `<li class="border-b border-border py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+    return `<li class="border-b border-border py-6 font-mono text-xs tracking-wide text-muted-foreground">
       No hay noticias publicadas por el momento.
     </li>`;
   }
@@ -197,7 +197,7 @@ export function htmlClub(club: Club): string {
 
 export function htmlListaClubes(clubes: Club[]): string {
   if (clubes.length === 0) {
-    return `<li class="border border-border bg-card p-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+    return `<li class="border border-border bg-card p-6 font-mono text-xs tracking-wide text-muted-foreground">
       Ningún club coincide con la búsqueda.
     </li>`;
   }
@@ -208,7 +208,7 @@ export function htmlListaClubes(clubes: Club[]): string {
 /** Grilla de tarjetas de la temporada (bloque histórico "Temporada 2027"). */
 export function htmlTarjetasRondas(rondas: Ronda[]): string {
   if (rondas.length === 0) {
-    return `<p class="col-span-full border border-border bg-card p-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+    return `<p class="col-span-full border border-border bg-card p-6 font-mono text-xs tracking-wide text-muted-foreground">
       Todavía no hay rondas cargadas.
     </p>`;
   }

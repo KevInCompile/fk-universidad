@@ -17,7 +17,7 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
   <section class="mt-12">
     <div class="mb-6 flex items-center gap-4">
       <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
-      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+      <h2 class="font-mono text-xs tracking-[0.3em] text-muted-foreground uppercase">
         Solicitudes en validación (<span id="total-pendientes">0</span>)
       </h2>
       <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
@@ -33,14 +33,14 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
   <section class="mt-16">
     <div class="mb-6 flex items-center gap-4">
       <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
-      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+      <h2 class="font-mono text-xs tracking-[0.3em] text-muted-foreground uppercase">
         Histórico de licencias resueltas (<span id="total-resueltas">0</span>)
       </h2>
       <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
     </div>
 
     <div id="historico" class="divide-y divide-border border-y border-border">
-      <p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+      <p class="py-6 font-mono text-xs tracking-wide text-muted-foreground">
         Todavía no hay licencias resueltas.
       </p>
     </div>
@@ -88,7 +88,7 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
     if (bandeja) {
       bandeja.innerHTML =
         pendientes.length === 0
-          ? '<p class="border border-border px-4 py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">No hay solicitudes pendientes de validación.</p>'
+          ? '<p class="border border-border px-4 py-6 font-mono text-xs tracking-wide text-muted-foreground">No hay solicitudes pendientes de validación.</p>'
           : pendientes
               .map(({ licencia, piloto }) => {
                 return `
@@ -181,7 +181,7 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
     if (historico) {
       historico.innerHTML =
         resueltas.length === 0
-          ? '<p class="py-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">Todavía no hay licencias resueltas.</p>'
+          ? '<p class="py-6 font-mono text-xs tracking-wide text-muted-foreground">Todavía no hay licencias resueltas.</p>'
           : resueltas
               .map(({ licencia, piloto }) => {
                 const activa = licencia.estado === "activa";
@@ -192,7 +192,7 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
           )}</span>
           <span>
             <span class="block text-lg font-medium">${esc(piloto?.nombre ?? "Piloto desconocido")}</span>
-            <span class="mt-1 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span class="mt-1 block font-mono text-[10px] tracking-wide text-muted-foreground">
               ${esc(licencia.categoria)} · solicitada el ${esc(fechaLegible(licencia.solicitadaEn))}
             </span>
             ${

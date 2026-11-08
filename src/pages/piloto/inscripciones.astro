@@ -29,7 +29,7 @@ import { categorias } from "../../data/site";
       </h2>
       <p class="mt-2 text-muted-foreground">
         Listamos las rondas con inscripciones abiertas. Buscá por nombre o por
-        ciudad y confirmá tu participación.
+        ciudad y confirme su participación.
       </p>
 
       <label class="mt-6 block">
@@ -46,7 +46,7 @@ import { categorias } from "../../data/site";
 
       <p
         id="sin-resultados"
-        class="mt-6 hidden font-mono text-xs uppercase tracking-widest text-muted-foreground"
+        class="mt-6 hidden font-mono text-xs tracking-wide text-muted-foreground"
       >
         No hay rondas que coincidan con la búsqueda.
       </p>
@@ -116,7 +116,7 @@ import { categorias } from "../../data/site";
           type="text"
           id="codigo-qr"
           placeholder="FEDKART-R02-2027"
-          class="mt-2 w-full border border-border bg-background px-4 py-3 font-mono uppercase tracking-widest text-foreground outline-none transition-colors focus:border-primary"
+          class="mt-2 w-full border border-border bg-background px-4 py-3 font-mono tracking-widest text-foreground outline-none transition-colors focus:border-primary uppercase"
         />
       </label>
 
@@ -169,9 +169,9 @@ import { categorias } from "../../data/site";
 
     <p
       id="sin-inscripciones"
-      class="hidden font-mono text-xs uppercase tracking-widest text-muted-foreground"
+      class="hidden font-mono text-xs tracking-wide text-muted-foreground"
     >
-      Todavía no estás inscrito en ninguna ronda.
+      Todavía no está inscrito en ninguna ronda.
     </p>
   </section>
 </PilotoShell>
@@ -349,7 +349,7 @@ import { categorias } from "../../data/site";
 
           <div class="mt-5 flex items-center gap-5">
             <div data-qr="${escapar(inscripcion.codigo)}" class="w-40 bg-white p-2"></div>
-            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            <p class="font-mono text-[10px] tracking-wide text-muted-foreground">
               Presentá este QR en la acreditación
             </p>
           </div>
@@ -467,7 +467,7 @@ import { categorias } from "../../data/site";
       if (exito) {
         exito.textContent = resultado.repetida
           ? `Código válido: ${resultado.ronda.nombre}. Ya estabas inscrito en esta ronda.`
-          : `Código válido: te inscribiste en ${resultado.ronda.nombre}.`;
+          : `Código válido: se inscribió en ${resultado.ronda.nombre}.`;
         exito.classList.remove("hidden");
       }
 
