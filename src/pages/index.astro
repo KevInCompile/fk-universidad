@@ -1,0 +1,185 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import SeccionCalendario from "../components/home/SeccionCalendario.astro";
+import SeccionReglamentos from "../components/home/SeccionReglamentos.astro";
+import SeccionCategorias from "../components/home/SeccionCategorias.astro";
+import SeccionNoticias from "../components/home/SeccionNoticias.astro";
+import SeccionClubes from "../components/home/SeccionClubes.astro";
+import SeccionMapa from "../components/home/SeccionMapa.astro";
+import { rounds, tracks, schoolsCopy, heroCopy } from "../data/site";
+
+const ticker = [...rounds, ...rounds];
+---
+
+<Base>
+  <Header />
+
+  <main>
+    <!-- Hero -->
+    <section class="grain relative min-h-[88vh] overflow-hidden border-b">
+      <img
+        src="/assets/hero-karts.jpg"
+        alt="Karts en pista"
+        class="absolute inset-0 h-full w-full object-cover opacity-60"
+      />
+      <div
+        class="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent"
+      >
+      </div>
+
+      <div
+        class="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-end px-5 pb-12"
+      >
+        <div class="mb-6 flex gap-2" aria-hidden="true">
+          {
+            [0, 1, 2, 3, 4].map(() => (
+              <span class="light-seq h-4 w-4 rounded-full bg-secondary"></span>
+            ))
+          }
+        </div>
+
+        <h1 class="font-display text-[18vw] uppercase leading-[0.9] md:text-[11rem]">
+          Hasta la<br />
+          <span class="text-primary">última</span> curva
+        </h1>
+
+        <div
+          class="mt-10 grid gap-6 border-t pt-6 md:grid-cols-[1fr_auto] md:items-end"
+        >
+          <p class="max-w-md text-muted-foreground">{heroCopy}</p>
+
+          <a
+            href="/calendario"
+            class="group flex items-center gap-6 bg-primary px-6 py-4 text-primary-foreground"
+          >
+            <span id="hero-proxima-fecha" class="font-mono text-xs uppercase tracking-widest">
+              Próxima ronda · 14 Mar
+            </span>
+            <span id="hero-proxima-nombre" class="font-display text-2xl uppercase">
+              Apertura Nacional →
+            </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticker -->
+    <div class="overflow-hidden border-b bg-foreground py-3 text-background">
+      <div
+        class="animate-ticker flex w-max gap-12 whitespace-nowrap font-mono text-sm uppercase tracking-widest"
+      >
+        {
+          ticker.map((round) => (
+            <span>
+              <span class="text-primary">{round.codigo}</span> {round.fecha} — {round.nombre} ·{" "}
+              {round.ciudad}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- Pistas oficiales -->
+    <section class="mx-auto max-w-7xl px-5 py-24">
+      <SectionHeading title="Pistas oficiales" />
+
+      <div class="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+        <img
+          src="/assets/pista-aerea.jpg"
+          alt="Vista aérea de un autódromo"
+          class="w-full border object-cover"
+        />
+
+        <div class="divide-y divide-border border-y">
+          {
+            tracks.map((track) => (
+              <div class="grid grid-cols-[auto_1fr_auto] items-center gap-5 py-5">
+                <span class="font-mono text-xs text-primary">{track.code}</span>
+                <div>
+                  <h3 class="font-display text-3xl uppercase leading-none">{track.name}</h3>
+                  <p class="mt-1 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                    {track.city} · {track.length} · {track.corners}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Récord
+                  </p>
+                  <p class="font-mono text-lg">{track.record}</p>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <!--
+      Escuelas: sección comentada temporalmente (a pedido del usuario).
+      Se restaura descomentando el bloque y volviendo a usar `schoolsCopy`.
+    <section
+      class="mx-auto grid max-w-7xl items-center gap-12 px-5 py-24 md:grid-cols-2"
+    >
+      <img
+        src="/assets/escuela.jpg"
+        alt="Piloto joven en una escuela de kartismo"
+        class="w-full border object-cover"
+      />
+
+      <div>
+        <SectionHeading title="Escuelas" />
+
+        <h2 class="font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+          Desde los <span class="text-primary">5 años</span> a la parrilla
+        </h2>
+
+        <p class="mt-6 max-w-md text-muted-foreground">{schoolsCopy}</p>
+
+        <a
+          href="/escuelas"
+          class="mt-8 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+        >
+          Conocer escuelas
+        </a>
+      </div>
+    </section>
+    -->
+
+    <!-- Calendario (dinámico: se actualiza desde el panel de directiva) -->
+    <SeccionCalendario />
+
+    <!-- Reglamentos -->
+    <SeccionReglamentos />
+
+    <!-- Categorías -->
+    <SeccionCategorias />
+
+    <!-- Noticias de la federación (dinámico) -->
+    <SeccionNoticias />
+
+    <!-- Consultar los clubes -->
+    <SeccionClubes />
+
+    <!-- Mapa de las pistas homologadas -->
+    <SeccionMapa />
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import { leerEstado } from "../lib/store";
+  import { proximaRonda } from "../components/home/home-data";
+
+  const fecha = document.getElementById("hero-proxima-fecha");
+  const nombre = document.getElementById("hero-proxima-nombre");
+  const ronda = proximaRonda(leerEstado().rondas);
+
+  if (fecha && nombre && ronda) {
+    fecha.textContent = `Próxima ronda · ${ronda.fecha}`;
+    nombre.textContent = `${ronda.nombre} →`;
+  }
+</script>

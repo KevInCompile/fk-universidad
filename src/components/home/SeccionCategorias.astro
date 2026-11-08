@@ -1,0 +1,43 @@
+---
+/**
+ * T3 — Categorías: edad, kart requerido, licencia requerida y descripción.
+ */
+import SectionHeading from "../SectionHeading.astro";
+import { categorias } from "../../data/site";
+---
+
+<section id="categorias" class="border-y bg-card">
+  <div class="mx-auto max-w-7xl px-5 py-24">
+    <SectionHeading title="Categorías" />
+
+    <div class="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
+      {
+        categorias.map((categoria) => (
+          <article class="flex flex-col bg-card p-6">
+            <div class="flex items-baseline justify-between gap-4">
+              <h3 class="font-display text-3xl uppercase leading-none">
+                {categoria.nombre}
+              </h3>
+              <span class="font-mono text-xs uppercase tracking-widest text-primary">
+                {categoria.edadMin}–{categoria.edadMax} años
+              </span>
+            </div>
+
+            <dl class="mt-5 space-y-2 border-t border-border pt-4 font-mono text-[11px] uppercase tracking-widest">
+              <div class="flex flex-wrap gap-x-3">
+                <dt class="text-muted-foreground">Kart requerido</dt>
+                <dd>{categoria.kart}</dd>
+              </div>
+              <div class="flex flex-wrap gap-x-3">
+                <dt class="text-muted-foreground">Licencia requerida</dt>
+                <dd>{categoria.licenciaRequerida}</dd>
+              </div>
+            </dl>
+
+            <p class="mt-5 text-sm text-muted-foreground">{categoria.descripcion}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

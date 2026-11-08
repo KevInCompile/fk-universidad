@@ -1,0 +1,122 @@
+---
+/**
+ * T5 — Consultar los clubes: buscador por texto (nombre/ciudad), filtro por
+ * departamento y por categoría, y toggle de clubes homologados.
+ */
+import SectionHeading from "../SectionHeading.astro";
+import { clubes } from "../../data/site";
+import { categoriasDeClubes, departamentoDe, htmlListaClubes } from "./home-data";
+
+const departamentos = departamentoDe(clubes);
+const categorias = categoriasDeClubes(clubes);
+---
+
+<section id="clubes" class="border-y bg-card">
+  <div class="mx-auto max-w-7xl px-5 py-24">
+    <SectionHeading title="Consultar los clubes" />
+
+    <div class="grid gap-4 border border-border bg-background p-5 md:grid-cols-4">
+      <label class="flex flex-col gap-2">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Buscar por nombre o ciudad
+        </span>
+        <input
+          id="clubes-busqueda"
+          type="search"
+          placeholder="Ej. Valle, Bogotá…"
+          autocomplete="off"
+          class="border border-border bg-background px-3 py-2 font-mono text-xs uppercase tracking-widest outline-none focus:border-primary"
+        />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Departamento
+        </span>
+        <select
+          id="clubes-departamento"
+          class="border border-border bg-background px-3 py-2 font-mono text-xs uppercase tracking-widest outline-none focus:border-primary"
+        >
+          <option value="">Todos los departamentos</option>
+          {departamentos.map((departamento) => <option value={departamento}>{departamento}</option>)}
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Categoría
+        </span>
+        <select
+          id="clubes-categoria"
+          class="border border-border bg-background px-3 py-2 font-mono text-xs uppercase tracking-widest outline-none focus:border-primary"
+        >
+          <option value="">Todas las categorías</option>
+          {categorias.map((categoria) => <option value={categoria}>{categoria}</option>)}
+        </select>
+      </label>
+
+      <label class="flex items-end gap-3 md:pb-2">
+        <input
+          id="clubes-homologados"
+          type="checkbox"
+          class="h-4 w-4 accent-[var(--color-primary)]"
+        />
+        <span class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Solo clubes homologados
+        </span>
+      </label>
+    </div>
+
+    <p
+      id="clubes-resultado"
+      class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground"
+    >
+      {clubes.length} clubes
+    </p>
+
+    <ul
+      id="clubes-lista"
+      class="mt-4 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3"
+      set:html={htmlListaClubes(clubes)}
+    >
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { clubes } from "../../data/site";
+  import { filtrarClubes, htmlListaClubes } from "./home-data";
+
+  const lista = document.getElementById("clubes-lista");
+  const contador = document.getElementById("clubes-resultado");
+  const busqueda = document.getElementById("clubes-busqueda") as HTMLInputElement | null;
+  const departamento = document.getElementById("clubes-departamento") as HTMLSelectElement | null;
+  const categoria = document.getElementById("clubes-categoria") as HTMLSelectElement | null;
+  const homologados = document.getElementById("clubes-homologados") as HTMLInputElement | null;
+
+  function render() {
+    if (!lista) return;
+
+    const resultado = filtrarClubes(clubes, {
+      texto: busqueda?.value ?? "",
+      departamento: departamento?.value ?? "",
+      categoria: categoria?.value ?? "",
+      soloHomologados: homologados?.checked ?? false,
+    });
+
+    lista.innerHTML = htmlListaClubes(resultado);
+
+    if (contador) {
+      contador.textContent = `${resultado.length} ${
+        resultado.length === 1 ? "club" : "clubes"
+      }`;
+    }
+  }
+
+  busqueda?.addEventListener("input", render);
+  departamento?.addEventListener("change", render);
+  categoria?.addEventListener("change", render);
+  homologados?.addEventListener("change", render);
+
+  render();
+</script>

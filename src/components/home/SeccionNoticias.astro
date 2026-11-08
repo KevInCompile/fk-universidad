@@ -1,0 +1,37 @@
+---
+/**
+ * T4 — Noticias de la federación.
+ *
+ * El listado es dinámico: se arma desde el store del navegador para que las
+ * noticias publicadas desde el panel de directiva se reflejen aquí. Las
+ * noticias con `publicada: false` nunca se muestran.
+ */
+import SectionHeading from "../SectionHeading.astro";
+import { noticias } from "../../data/site";
+import { htmlListaNoticias, noticiasPublicadas } from "./home-data";
+---
+
+<section id="noticias" class="mx-auto max-w-7xl px-5 py-24">
+  <SectionHeading title="Noticias de la federación" />
+
+  <ul id="noticias-lista" class="border-t border-border" set:html={htmlListaNoticias(noticiasPublicadas(noticias))}>
+  </ul>
+
+  <a
+    href="/noticias"
+    class="mt-8 inline-block font-mono text-xs uppercase tracking-widest text-primary"
+  >
+    Ver todas las noticias →
+  </a>
+</section>
+
+<script>
+  import { leerEstado } from "../../lib/store";
+  import { htmlListaNoticias, noticiasPublicadas } from "./home-data";
+
+  const lista = document.getElementById("noticias-lista");
+
+  if (lista) {
+    lista.innerHTML = htmlListaNoticias(noticiasPublicadas(leerEstado().noticias));
+  }
+</script>

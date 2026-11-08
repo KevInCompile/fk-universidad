@@ -1,0 +1,37 @@
+---
+/**
+ * T2 — Reglamentos: listado con título, resumen y enlace al detalle.
+ */
+import SectionHeading from "../SectionHeading.astro";
+import { reglamentos } from "../../data/site";
+---
+
+<section id="reglamentos" class="mx-auto max-w-7xl px-5 py-24">
+  <SectionHeading title="Reglamentos" />
+
+  <div class="border-t border-border">
+    {
+      reglamentos.map((reglamento) => (
+        <a
+          href={`/reglamentos/${reglamento.slug}`}
+          class="group grid gap-3 border-b border-border py-6 md:grid-cols-[1.1fr_1.4fr_auto] md:items-center md:gap-8"
+        >
+          <h3 class="font-display text-3xl uppercase leading-none transition-colors group-hover:text-primary">
+            {reglamento.titulo}
+          </h3>
+          <p class="text-sm text-muted-foreground">{reglamento.resumen}</p>
+          <span class="font-display text-2xl md:text-right" aria-hidden="true">
+            →
+          </span>
+        </a>
+      ))
+    }
+  </div>
+
+  <a
+    href="/reglamentos"
+    class="mt-8 inline-block font-mono text-xs uppercase tracking-widest text-primary"
+  >
+    Ver todos los reglamentos →
+  </a>
+</section>

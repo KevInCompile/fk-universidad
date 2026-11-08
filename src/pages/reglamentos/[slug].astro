@@ -1,0 +1,61 @@
+---
+import Base from "../../layouts/Base.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { reglamentos } from "../../data/site";
+import type { Reglamento } from "../../lib/types";
+
+export function getStaticPaths() {
+  return reglamentos.map((reglamento) => ({
+    params: { slug: reglamento.slug },
+    props: { reglamento },
+  }));
+}
+
+interface Props {
+  reglamento: Reglamento;
+}
+
+const { reglamento } = Astro.props;
+---
+
+<Base title={`${reglamento.titulo} — Federación de Kartismo`} description={reglamento.resumen}>
+  <Header />
+
+  <main class="mx-auto max-w-4xl px-5 py-24">
+    <a
+      href="/reglamentos"
+      class="font-mono text-xs uppercase tracking-widest text-primary"
+    >
+      ← Volver a reglamentos
+    </a>
+
+    <h1 class="mt-8 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+      {reglamento.titulo}
+    </h1>
+
+    <p class="mt-6 max-w-2xl text-lg text-muted-foreground">{reglamento.resumen}</p>
+
+    <div class="mt-16 border-t border-border">
+      {
+        reglamento.articulos.map((articulo) => (
+          <article class="border-b border-border py-8">
+            <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+              {articulo.titulo}
+            </h2>
+            <p class="mt-4 text-lg leading-relaxed">{articulo.texto}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <a
+      href="/reglamentos"
+      class="mt-12 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+    >
+      Volver a reglamentos
+    </a>
+  </main>
+
+  <Footer />
+</Base>

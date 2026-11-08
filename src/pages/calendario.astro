@@ -1,0 +1,67 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import { rounds } from "../data/site";
+import { htmlTarjetasRondas } from "../components/home/home-data";
+---
+
+<Base
+  title="Calendario de la temporada 2027 — Federación de Kartismo"
+  description="Las seis fechas de la temporada 2027 del campeonato nacional de kartismo."
+>
+  <Header />
+
+  <main>
+    <section class="grain relative overflow-hidden border-b">
+      <div
+        class="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent"
+      >
+      </div>
+
+      <div
+        class="relative mx-auto flex max-w-7xl flex-col justify-end px-5 pb-12 pt-24"
+      >
+        <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          Temporada 2027
+        </p>
+        <h1 class="font-display text-[16vw] uppercase leading-[0.9] md:text-8xl">
+          Calendario
+        </h1>
+      </div>
+    </section>
+
+    <section class="border-b bg-card">
+      <div class="mx-auto max-w-7xl px-5 py-24">
+        <SectionHeading title="Temporada 2027" />
+
+        <div
+          id="calendario-tarjetas"
+          class="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3"
+          set:html={htmlTarjetasRondas(rounds)}
+        >
+        </div>
+
+        <a
+          href="/piloto/inscripciones"
+          class="mt-8 inline-block font-mono text-xs uppercase tracking-widest text-primary"
+        >
+          Inscribirse a un evento →
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import { leerEstado } from "../lib/store";
+  import { htmlTarjetasRondas } from "../components/home/home-data";
+
+  const contenedor = document.getElementById("calendario-tarjetas");
+  if (contenedor) {
+    contenedor.innerHTML = htmlTarjetasRondas(leerEstado().rondas);
+  }
+</script>

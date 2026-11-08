@@ -1,0 +1,48 @@
+---
+/**
+ * T1 — Calendario de la temporada 2027.
+ *
+ * El markup de servidor usa la semilla (`rounds`) y un `<script>` re-renderiza
+ * la sección desde el store del navegador para que los cambios hechos en el
+ * panel de directiva (/admin/calendario) se vean aquí.
+ */
+import SectionHeading from "../SectionHeading.astro";
+import { rounds } from "../../data/site";
+import { htmlListaRondas, htmlRondaDestacada, proximaRonda } from "./home-data";
+---
+
+<section id="calendario" class="border-y bg-card">
+  <div class="mx-auto max-w-7xl px-5 py-24">
+    <SectionHeading title="Calendario de la temporada 2027" />
+
+    <div id="calendario-destacado" set:html={htmlRondaDestacada(proximaRonda(rounds))} />
+
+    <ul
+      id="calendario-lista"
+      class="mt-10 border-t border-border"
+      set:html={htmlListaRondas(rounds)}
+    >
+    </ul>
+
+    <a
+      href="/calendario"
+      class="mt-8 inline-block font-mono text-xs uppercase tracking-widest text-primary"
+    >
+      Ver calendario completo →
+    </a>
+  </div>
+</section>
+
+<script>
+  import { leerEstado } from "../../lib/store";
+  import { htmlListaRondas, htmlRondaDestacada, proximaRonda } from "./home-data";
+
+  const destacado = document.getElementById("calendario-destacado");
+  const lista = document.getElementById("calendario-lista");
+
+  if (destacado && lista) {
+    const rondas = leerEstado().rondas;
+    destacado.innerHTML = htmlRondaDestacada(proximaRonda(rondas));
+    lista.innerHTML = htmlListaRondas(rondas);
+  }
+</script>
