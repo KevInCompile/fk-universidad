@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   bandejaLicencias,
   decidirLicencia,
+  listadoInscripciones,
   resumenPanel,
   validarNoticia,
   validarRonda,
@@ -191,5 +192,204 @@ describe("decisión sobre una licencia", () => {
   it("avisa cuando la licencia no existe", () => {
     const resultado = decidirLicencia(estadoBase(), "LIC-99", "aprobada", "");
     expect(resultado.ok).toBe(false);
+  });
+});
+
+describe("listado de inscritos por evento", () => {
+  it("agrupa los inscritos de cada ronda con los datos del piloto", () => {
+    const estado = estadoBase();
+    estado.rondas = [
+      {
+        id: "r01",
+        codigo: "R01",
+        fecha: "14 MAR",
+        nombre: "Apertura Nacional",
+        ciudad: "Bogotá",
+        pista: "Autódromo Norte",
+        pistaId: "T1",
+        codigoQr: "FEDKART-R01-2027",
+        estado: "programada",
+      },
+    ];
+    estado.inscripciones = [
+      {
+        id: "INS-1",
+        pilotoId: piloto.id,
+        rondaId: "r01",
+        categoria: "Infantil",
+        codigo: "INS-R01-A1B2",
+        creadaEn: "2026-11-01T10:00:00.000Z",
+      },
+    ];
+
+    const listado = listadoInscripciones(estado);
+
+    expect(listado.eventos).toHaveLength(1);
+    expect(listado.eventos[0].ronda.codigo).toBe("R01");
+    expect(listado.eventos[0].inscritos).toHaveLength(1);
+    expect(listado.eventos[0].inscritos[0].piloto?.nombre).toBe("Valentina Ríos");
+    expect(listado.totalInscritos).toBe(1);
+  });
+
+  it("cuenta los inscritos por categoría dentro de cada evento", () => {
+    const estado = estadoBase();
+    estado.rondas = [
+      {
+        id: "r01",
+        codigo: "R01",
+        fecha: "14 MAR",
+        nombre: "Apertura Nacional",
+        ciudad: "Bogotá",
+        pista: "Autódromo Norte",
+        pistaId: "T1",
+        codigoQr: "FEDKART-R01-2027",
+        estado: "programada",
+      },
+    ];
+    estado.inscripciones = [
+      {
+        id: "INS-1",
+        pilotoId: piloto.id,
+        rondaId: "r01",
+        categoria: "Infantil",
+        codigo: "INS-R01-A1B2",
+        creadaEn: "2026-11-01T10:00:00.000Z",
+      },
+      {
+        id: "INS-2",
+        pilotoId: piloto.id,
+        rondaId: "r01",
+        categoria: "Infantil",
+        codigo: "INS-R01-C3D4",
+        creadaEn: "2026-11-02T10:00:00.000Z",
+      },
+      {
+        id: "INS-3",
+        pilotoId: piloto.id,
+        rondaId: "r01",
+        categoria: "Senior",
+        codigo: "INS-R01-E5F6",
+        creadaEn: "2026-11-03T10:00:00.000Z",
+      },
+    ];
+
+    const evento = listadoInscripciones(estado).eventos[0];
+
+    expect(evento.inscritos).toHaveLength(3);
+    expect(evento.porCategoria).toEqual([
+      { categoria: "Infantil", total: 2 },
+      { categoria: "Senior", total: 1 },
+    ]);
+  });
+
+  it("deja el evento sin inscritos cuando nadie se anotó", () => {
+    const estado = estadoBase();
+    estado.rondas = [
+      {
+        id: "r01",
+        codigo: "R01",
+        fecha: "14 MAR",
+        nombre: "Apertura Nacional",
+        ciudad: "Bogotá",
+        pista: "Autódromo Norte",
+        pistaId: "T1",
+        codigoQr: "FEDKART-R01-2027",
+        estado: "programada",
+      },
+    ];
+    estado.inscripciones = [];
+
+    const listado = listadoInscripciones(estado);
+
+    expect(listado.eventos).toHaveLength(1);
+    expect(listado.eventos[0].inscritos).toHaveLength(0);
+    expect(listado.eventos[0].porCategoria).toEqual([]);
+    expect(listado.totalInscritos).toBe(0);
+  });
+
+  it("no rompe cuando el piloto de la inscripción ya no existe", () => {
+    const estado = estadoBase();
+    estado.rondas = [
+      {
+        id: "r01",
+        codigo: "R01",
+        fecha: "14 MAR",
+        nombre: "Apertura Nacional",
+        ciudad: "Bogotá",
+        pista: "Autódromo Norte",
+        pistaId: "T1",
+        codigoQr: "FEDKART-R01-2027",
+        estado: "programada",
+      },
+    ];
+    estado.inscripciones = [
+      {
+        id: "INS-1",
+        pilotoId: "FK-2027-XXX999",
+        rondaId: "r01",
+        categoria: "Infantil",
+        codigo: "INS-R01-A1B2",
+        creadaEn: "2026-11-01T10:00:00.000Z",
+      },
+    ];
+
+    const evento = listadoInscripciones(estado).eventos[0];
+
+    expect(evento.inscritos).toHaveLength(1);
+    expect(evento.inscritos[0].piloto).toBeUndefined();
+  });
+
+  it("suma los inscritos de toda la temporada por categoría", () => {
+    const estado = estadoBase();
+    estado.rondas = [
+      {
+        id: "r01",
+        codigo: "R01",
+        fecha: "14 MAR",
+        nombre: "Apertura Nacional",
+        ciudad: "Bogotá",
+        pista: "Autódromo Norte",
+        pistaId: "T1",
+        codigoQr: "FEDKART-R01-2027",
+        estado: "programada",
+      },
+      {
+        id: "r02",
+        codigo: "R02",
+        fecha: "11 ABR",
+        nombre: "Gran Premio del Valle",
+        ciudad: "Cali",
+        pista: "Kartódromo del Valle",
+        pistaId: "T2",
+        codigoQr: "FEDKART-R02-2027",
+        estado: "programada",
+      },
+    ];
+    estado.inscripciones = [
+      {
+        id: "INS-1",
+        pilotoId: piloto.id,
+        rondaId: "r01",
+        categoria: "Infantil",
+        codigo: "INS-R01-A1B2",
+        creadaEn: "2026-11-01T10:00:00.000Z",
+      },
+      {
+        id: "INS-2",
+        pilotoId: piloto.id,
+        rondaId: "r02",
+        categoria: "Senior",
+        codigo: "INS-R02-C3D4",
+        creadaEn: "2026-11-02T10:00:00.000Z",
+      },
+    ];
+
+    const listado = listadoInscripciones(estado);
+
+    expect(listado.totalInscritos).toBe(2);
+    expect(listado.categorias).toEqual([
+      { categoria: "Infantil", total: 1 },
+      { categoria: "Senior", total: 1 },
+    ]);
   });
 });

@@ -12,11 +12,13 @@ administrativo para directiva y portal para pilotos.
 - **Calendario completo** (`/calendario`) — grilla de las rondas de la temporada, leída
   del mismo estado que la home (los cambios del panel de directiva se reflejan).
 - **Panel de directiva** (`/admin`) — publicar/editar/borrar noticias, actualizar el
-  calendario de rondas y validar solicitudes de licencia.
+  calendario de rondas, validar solicitudes de licencia y consultar el listado de
+  personas inscritas por evento (`/admin/inscripciones`, con buscador y conteo por
+  categoría).
 - **Portal del piloto** (`/piloto`) — registro con identificador único ligado al
-  documento de identidad, estado y datos de la licencia, solicitud de licencia con
-  documento y fotografía, inscripción a eventos por búsqueda o por código QR, y
-  licencia activa lista para imprimir.
+  documento de identidad y con la categoría en la que compite, estado y datos de la
+  licencia, solicitud de licencia con documento y fotografía, inscripción a eventos por
+  búsqueda o por código QR, y licencia activa lista para imprimir.
 
 ## Decisiones del prototipo
 
@@ -29,6 +31,9 @@ administrativo para directiva y portal para pilotos.
   complejo homologado.
 - **Idioma**: registro neutro (usted) en toda la interfaz: "Seleccione", "Cargue",
   "Ingrese", "Guarde", "Descargue", "Revise", "Apruebe o rechace".
+- **Almacenamiento**: todo el estado vive en `localStorage` (~5 MB). Las fotografías se
+  reducen a un thumbnail de 480 px antes de guardarse; si la cuota se llena, se
+  descartan las previsualizaciones y se reintenta una vez antes de avisar por pantalla.
 
 ## Comandos
 

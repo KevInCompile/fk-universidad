@@ -6,7 +6,7 @@
  * pintan el resultado.
  */
 
-import type { Estado, Licencia, Piloto, Ronda } from "../../lib/types";
+import type { Estado, Inscripcion, Licencia, Piloto, Ronda } from "../../lib/types";
 
 export interface ResumenPanel {
   noticiasPublicadas: number;
@@ -44,6 +44,32 @@ export interface SolicitudLicencia {
 export interface BandejaLicencias {
   pendientes: SolicitudLicencia[];
   resueltas: SolicitudLicencia[];
+}
+
+/** Una inscripción con los datos del piloto que la realiza. */
+export interface InscripcionDePiloto {
+  inscripcion: Inscripcion;
+  piloto?: Piloto;
+}
+
+/** Un evento de la temporada con las personas inscritas. */
+export interface EventoConInscripciones {
+  ronda: Ronda;
+  inscritos: InscripcionDePiloto[];
+  porCategoria: ConteoCategoria[];
+}
+
+/** Conteo de personas por categoría. */
+export interface ConteoCategoria {
+  categoria: string;
+  total: number;
+}
+
+/** Listado completo de inscritos de la temporada. */
+export interface ListadoInscripciones {
+  eventos: EventoConInscripciones[];
+  totalInscritos: number;
+  categorias: ConteoCategoria[];
 }
 
 export interface ResultadoDecision {
@@ -140,4 +166,44 @@ export function decidirLicencia(
       observacion: nota || undefined,
     },
   };
+}
+
+/** Cuenta personas por categoría, de la más numerousa a la menos numerousa. */
+function contarPorCategoria(inscritos: InscripcionDePiloto[]): ConteoCategoria[] {
+  const conteo = new Map<string, number>();
+
+  for (const { inscripcion } of inscritos) {
+    conteo.set(inscripcion.categoria, (conteo.get(inscripcion.categoria) ?? 0) + 1);
+  }
+
+  return [...conteo.entries()]
+    .map(([categoria, total]) => ({ categoria, total }))
+    .sort((a, b) => b.total - a.total || a.categoria.localeCompare(b.categoria, "es"));
+}
+
+/**
+ * Listado de las personas inscritas por evento.
+ *
+ * Incluye todos los eventos de la temporada, incluso los que todavía no
+ * tienen nadie inscrito, para que la directiva vea de una sola vez cómo está
+ * cada fecha.
+ */
+export function listadoInscripciones(estado: Estado): ListadoInscripciones {
+  const eventos: EventoConInscripciones[] = estado.rondas.map((ronda) => {
+    const inscritos: InscripcionDePiloto[] = estado.inscripciones
+      .filter((inscripcion) => inscripcion.rondaId === ronda.id)
+      .map((inscripcion) => ({
+        inscripcion,
+        piloto: estado.pilotos.find((piloto) => piloto.id === inscripcion.pilotoId),
+      }));
+
+    return { ronda, inscritos, porCategoria: contarPorCategoria(inscritos) };
+  });
+
+  const totalInscritos = eventos.reduce((total, evento) => total + evento.inscritos.length, 0);
+  const categorias = contarPorCategoria(
+    eventos.flatMap((evento) => evento.inscritos),
+  );
+
+  return { eventos, totalInscritos, categorias };
 }

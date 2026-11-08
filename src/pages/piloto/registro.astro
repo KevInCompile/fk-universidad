@@ -1,5 +1,6 @@
 ---
 import PilotoShell from "../../components/piloto/PilotoShell.astro";
+import { categorias } from "../../data/site";
 ---
 
 <PilotoShell
@@ -19,6 +20,31 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
 
       <form id="form-registro" class="mt-8 space-y-5" novalidate>
         <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block sm:col-span-2">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Categoría en la que compite
+            </span>
+            <select
+              id="categoria"
+              name="categoria"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            >
+              <option value="">Seleccione una categoría</option>
+              {
+                categorias.map((categoria) => (
+                  <option value={categoria.nombre}>
+                    {categoria.nombre} · {categoria.edadMin}-{categoria.edadMax} años ·{" "}
+                    {categoria.kart}
+                  </option>
+                ))
+              }
+            </select>
+            <span class="mt-2 block font-mono text-[10px] tracking-wide text-muted-foreground">
+              La categoría con la que se inscribe a los eventos. La directiva la confirma en la
+              licencia.
+            </span>
+          </label>
+
           <label class="block sm:col-span-2">
             <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
               Nombre completo
@@ -117,12 +143,18 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
         </p>
 
         <p class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Tu identificador de piloto
+          Su identificador de piloto
         </p>
         <p
           id="piloto-id"
           class="mt-2 font-display text-4xl uppercase tracking-wide text-primary md:text-5xl"
         >
+        </p>
+
+        <p class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Categoría elegida
+        </p>
+        <p id="piloto-categoria" class="mt-2 font-display text-3xl uppercase text-foreground">
         </p>
 
         <p class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -185,7 +217,6 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
   const form = document.querySelector<HTMLFormElement>("#form-registro");
   const cajaError = document.querySelector<HTMLParagraphElement>("#error");
   const bloqueExito = document.querySelector<HTMLDivElement>("#exito");
-
   function mostrarError(mensaje: string): void {
     if (!cajaError) return;
     cajaError.textContent = mensaje;
@@ -203,6 +234,11 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
     return campo ? campo.value.trim() : "";
   }
 
+  function valorCategoria(): string {
+    const campo = document.querySelector<HTMLSelectElement>("#categoria");
+    return campo ? campo.value.trim() : "";
+  }
+
   function validar(): string | null {
     const nombre = valor("nombre");
     const documento = valor("documento");
@@ -213,6 +249,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
     if (nombre.length < 3) return "Ingrese su nombre completo.";
     if (documento.replace(/[^0-9A-Za-z]/g, "").length < 6)
       return "Ingrese un documento de identidad válido.";
+    if (!valorCategoria()) return "Seleccione la categoría en la que compite.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return "Ingrese un correo electrónico válido.";
     if (telefono.replace(/[^0-9]/g, "").length < 7)
@@ -241,6 +278,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
         email: valor("email"),
         telefono: valor("telefono"),
         fechaNacimiento: valor("nacimiento"),
+        categoria: valorCategoria(),
       });
 
       escribirSesion({
@@ -251,6 +289,8 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
 
       const destinoId = document.querySelector<HTMLParagraphElement>("#piloto-id");
       if (destinoId) destinoId.textContent = piloto.id;
+      const destinoCategoria = document.querySelector<HTMLParagraphElement>("#piloto-categoria");
+      if (destinoCategoria) destinoCategoria.textContent = piloto.categoria ?? "—";
 
       form.classList.add("hidden");
       bloqueExito?.classList.remove("hidden");

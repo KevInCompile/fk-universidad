@@ -20,6 +20,12 @@ const secciones = [
     descripcion: "Revise las solicitudes de licencia y decida cada caso.",
     icono: "03",
   },
+  {
+    href: "/admin/inscripciones",
+    titulo: "Inscritos",
+    descripcion: "Consulte las personas inscritas en cada evento de la temporada.",
+    icono: "04",
+  },
 ];
 ---
 
@@ -37,7 +43,7 @@ const secciones = [
 
   <!-- Resumen -->
   <section class="mt-12">
-    <div class="grid gap-px bg-border sm:grid-cols-3">
+    <div class="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
       <a href="/admin/noticias" class="group bg-card p-6 transition-colors hover:bg-primary">
         <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
           Noticias publicadas
@@ -68,6 +74,21 @@ const secciones = [
         </p>
       </a>
 
+      <a href="/admin/inscripciones" class="group bg-card p-6 transition-colors hover:bg-primary">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Inscritos en la temporada
+        </p>
+        <p
+          class="mt-4 font-display text-6xl uppercase leading-none transition-colors group-hover:text-primary-foreground"
+          id="total-inscripciones"
+        >
+          —
+        </p>
+        <p class="mt-3 font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
+          Ver inscritos →
+        </p>
+      </a>
+
       <a href="/admin/licencias" class="group bg-card p-6 transition-colors hover:bg-primary">
         <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground group-hover:text-primary-foreground">
           Licencias en validación
@@ -95,7 +116,7 @@ const secciones = [
       <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
     </div>
 
-    <div class="grid gap-px bg-border md:grid-cols-3">
+    <div class="grid gap-px bg-border md:grid-cols-2 lg:grid-cols-4">
       {
         secciones.map((seccion) => (
           <a
@@ -138,16 +159,19 @@ const secciones = [
   const mensaje = document.getElementById("mensaje-panel");
 
   if (sesion) {
-    const resumen = resumenPanel(leerEstado());
+    const estado = leerEstado();
+    const resumen = resumenPanel(estado);
     const publicadas = resumen.noticiasPublicadas;
     const enValidacion = resumen.licenciasEnValidacion;
 
     const totalNoticias = document.getElementById("total-noticias");
+    const totalInscripciones = document.getElementById("total-inscripciones");
     const totalRondas = document.getElementById("total-rondas");
     const totalLicencias = document.getElementById("total-licencias");
 
     if (totalNoticias) totalNoticias.textContent = String(publicadas);
     if (totalRondas) totalRondas.textContent = String(resumen.rondas);
+    if (totalInscripciones) totalInscripciones.textContent = String(estado.inscripciones.length);
     if (totalLicencias) totalLicencias.textContent = String(enValidacion);
 
     if (mensaje) {

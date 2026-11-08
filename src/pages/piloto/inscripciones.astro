@@ -183,6 +183,7 @@ import { categorias } from "../../data/site";
     inscribirEnRonda,
     inscribirPorCodigo,
     inscripcionesDe,
+    obtenerPiloto,
   } from "../../lib/store";
   import { sesionPiloto } from "../../components/piloto/sesion";
   import { escapar, formatoFecha } from "../../components/piloto/ui";
@@ -228,7 +229,7 @@ import { categorias } from "../../data/site";
     );
   }
 
-  function pintarSelectores(): void {
+  function pintarSelectores(categoriaPiloto?: string): void {
     const selectInscripcion = document.querySelector<HTMLSelectElement>(
       "#categoria-inscripcion",
     );
@@ -242,6 +243,7 @@ import { categorias } from "../../data/site";
       vacia.textContent = "Seleccione una categoría";
       select.appendChild(vacia);
       for (const opcion of categoriasDisponibles()) select.appendChild(opcion);
+      if (categoriaPiloto) select.value = categoriaPiloto;
     }
   }
 
@@ -374,7 +376,7 @@ import { categorias } from "../../data/site";
     if (!sesion?.pilotoId) return;
 
     rondas = leerEstado().rondas.filter((ronda) => ronda.estado === "programada");
-    pintarSelectores();
+    pintarSelectores(obtenerPiloto(sesion.pilotoId)?.categoria);
     pintarRondas();
     pintarInscripciones();
 

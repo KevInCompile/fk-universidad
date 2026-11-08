@@ -313,16 +313,24 @@ const estados = [
       return;
     }
 
-    guardarRonda({
-      ...(rondaEnEdicion ? { id: rondaEnEdicion } : {}),
-      codigo,
-      fecha,
-      nombre,
-      ciudad,
-      pista: pista.name,
-      pistaId: pista.code,
-      estado: estado as Ronda["estado"],
-    });
+    try {
+      guardarRonda({
+        ...(rondaEnEdicion ? { id: rondaEnEdicion } : {}),
+        codigo,
+        fecha,
+        nombre,
+        ciudad,
+        pista: pista.name,
+        pistaId: pista.code,
+        estado: estado as Ronda["estado"],
+      });
+    } catch (error) {
+      mostrarMensaje(
+        error instanceof Error ? error.message : "No se pudo guardar la ronda.",
+        false,
+      );
+      return;
+    }
 
     mostrarMensaje(
       rondaEnEdicion ? "Ronda actualizada" : "Ronda agregada al calendario",
@@ -364,7 +372,15 @@ const estados = [
     if (objetivo?.classList.contains("borrar-ronda")) {
       const confirmado = window.confirm(`¿Borrar la ronda "${ronda.nombre}"?`);
       if (!confirmado) return;
-      borrarRonda(ronda.id);
+      try {
+        borrarRonda(ronda.id);
+      } catch (error) {
+        mostrarMensaje(
+          error instanceof Error ? error.message : "No se pudo borrar la ronda.",
+          false,
+        );
+        return;
+      }
       if (rondaEnEdicion === ronda.id) limpiarFormulario();
       mostrarMensaje("Ronda borrada", true);
       pintarLista();

@@ -124,6 +124,7 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
             ${dato("Correo electrónico", escapar(piloto.email))}
             ${dato("Teléfono", escapar(piloto.telefono))}
             ${dato("Fecha de nacimiento", formatoFecha(piloto.fechaNacimiento))}
+            ${dato("Categoría", piloto.categoria ? escapar(piloto.categoria) : "Sin definir")}
             ${dato("Rol", "Piloto")}
           </div>
         </div>

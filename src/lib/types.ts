@@ -16,6 +16,8 @@ export interface Piloto {
   email: string;
   telefono: string;
   fechaNacimiento: string;
+  /** Categoría en la que el piloto se clasifica para competir. */
+  categoria?: string;
   creadoEn: string;
 }
 

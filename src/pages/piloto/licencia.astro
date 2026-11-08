@@ -167,7 +167,7 @@ import { categorias } from "../../data/site";
 </PilotoShell>
 
 <script>
-  import { solicitarLicencia } from "../../lib/store";
+  import { obtenerPiloto, solicitarLicencia } from "../../lib/store";
   import { sesionPiloto } from "../../components/piloto/sesion";
 
   const form = document.querySelector<HTMLFormElement>("#form-licencia");
@@ -220,14 +220,47 @@ import { categorias } from "../../data/site";
     }
   }
 
-  function leerFotoPreview(): Promise<string | undefined> {
+  /**
+   * Genera una previsualización pequeña de la fotografía.
+   *
+   * El estado del prototipo vive en localStorage (cuota de ~5 MB), así que
+   * guardar la foto completa en base64 revienta la cuota y la solicitud no
+   * llega a guardarse. Se reduce a un thumbnail de 480 px con calidad 0,72.
+   */
+  async function leerFotoPreview(): Promise<string | undefined> {
     const file = archivo("foto-archivo");
-    if (!file) return Promise.resolve(undefined);
+    if (!file) return undefined;
 
-    return new Promise((resolve) => {
+    try {
+      const fuente = await cargarImagen(file);
+      const maximo = 480;
+      const escala = Math.min(1, maximo / Math.max(fuente.width, fuente.height));
+      const ancho = Math.max(1, Math.round(fuente.width * escala));
+      const alto = Math.max(1, Math.round(fuente.height * escala));
+
+      const lienzo = document.createElement("canvas");
+      lienzo.width = ancho;
+      lienzo.height = alto;
+      const contexto = lienzo.getContext("2d");
+      if (!contexto) return undefined;
+      contexto.drawImage(fuente, 0, 0, ancho, alto);
+
+      return lienzo.toDataURL("image/jpeg", 0.72);
+    } catch {
+      return undefined;
+    }
+  }
+
+  function cargarImagen(file: File): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
       const lector = new FileReader();
-      lector.onload = () => resolve(String(lector.result ?? ""));
-      lector.onerror = () => resolve(undefined);
+      lector.onload = () => {
+        const imagen = new Image();
+        imagen.onload = () => resolve(imagen);
+        imagen.onerror = () => reject(new Error("No se pudo leer la imagen"));
+        imagen.src = String(lector.result ?? "");
+      };
+      lector.onerror = () => reject(new Error("No se pudo leer el archivo"));
       lector.readAsDataURL(file);
     });
   }
@@ -239,13 +272,23 @@ import { categorias } from "../../data/site";
     describir("foto");
   });
 
+  const sesionInicial = sesionPiloto();
+  if (sesionInicial?.pilotoId) {
+    const categoriaPiloto = obtenerPiloto(sesionInicial.pilotoId)?.categoria;
+    const select = document.querySelector<HTMLSelectElement>("#categoria");
+    if (categoriaPiloto && select) select.value = categoriaPiloto;
+  }
+
   if (form) {
     form.addEventListener("submit", async (evento) => {
       evento.preventDefault();
       limpiarError();
 
       const sesion = sesionPiloto();
-      if (!sesion?.pilotoId) return;
+      if (!sesion?.pilotoId) {
+        mostrarError("No se encontró la sesión de piloto. Vuelva a iniciar sesión.");
+        return;
+      }
 
       const select = document.querySelector<HTMLSelectElement>("#categoria");
       const categoria = select ? select.value : "";
@@ -279,13 +322,22 @@ import { categorias } from "../../data/site";
 
       const preview = await leerFotoPreview();
 
-      solicitarLicencia(sesion.pilotoId, {
-        categoria,
-        documentoNombre: documento.name,
-        documentoTipo: documento.type,
-        fotoNombre: foto.name,
-        fotoPreview: preview,
-      });
+      try {
+        solicitarLicencia(sesion.pilotoId, {
+          categoria,
+          documentoNombre: documento.name,
+          documentoTipo: documento.type,
+          fotoNombre: foto.name,
+          fotoPreview: preview,
+        });
+      } catch (error) {
+        mostrarError(
+          error instanceof Error
+            ? error.message
+            : "No se pudo guardar la solicitud. Intente de nuevo.",
+        );
+        return;
+      }
 
       form.classList.add("hidden");
       bloqueExito?.classList.remove("hidden");

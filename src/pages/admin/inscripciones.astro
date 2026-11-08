@@ -1,0 +1,210 @@
+---
+import AdminLayout from "../../components/admin/AdminLayout.astro";
+---
+
+<AdminLayout title="Inscritos — Panel de directiva" section="Inscritos">
+  <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+    Listado por evento
+  </p>
+  <h1 class="mt-4 font-display text-6xl uppercase leading-[0.9] md:text-7xl">
+    Personas <span class="text-primary">inscritas</span>
+  </h1>
+  <p class="mt-6 max-w-2xl text-muted-foreground">
+    Consulte qué pilotos están inscritos en cada evento de la temporada, con su categoría y el
+    código de inscripción que deben presentar en la acreditación.
+  </p>
+
+  <!-- Totales -->
+  <section class="mt-12">
+    <div class="grid gap-px bg-border sm:grid-cols-3">
+      <div class="bg-card p-6">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Inscritos en la temporada
+        </p>
+        <p class="mt-4 font-display text-6xl uppercase leading-none" id="total-inscritos">—</p>
+      </div>
+
+      <div class="bg-card p-6">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Eventos con inscritos
+        </p>
+        <p class="mt-4 font-display text-6xl uppercase leading-none" id="total-eventos">—</p>
+      </div>
+
+      <div class="bg-card p-6">
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Categorías
+        </p>
+        <p class="mt-4 font-display text-6xl uppercase leading-none" id="total-categorias">—</p>
+      </div>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center gap-4">
+      <label for="buscador-inscritos" class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        Buscar piloto
+      </label>
+      <input
+        id="buscador-inscritos"
+        type="search"
+        placeholder="Nombre, documento o identificador"
+        class="w-full max-w-sm border bg-background px-4 py-3 font-mono text-xs outline-none focus:border-primary"
+      />
+      <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" id="filtro-activo"></p>
+    </div>
+  </section>
+
+  <!-- Listado por evento -->
+  <section class="mt-16">
+    <div class="mb-6 flex items-center gap-4">
+      <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Inscritos por evento
+      </h2>
+      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+    </div>
+
+    <div id="listado" class="space-y-8">
+      <p class="border border-border px-4 py-6 font-mono text-xs tracking-wide text-muted-foreground">
+        Cargando inscritos…
+      </p>
+    </div>
+  </section>
+</AdminLayout>
+
+<script>
+  import { esc, exigirDirectivo, fechaLegible } from "../../components/admin/adminClient";
+  import { listadoInscripciones } from "../../components/admin/adminLogica";
+  import { leerEstado } from "../../lib/store";
+
+  const sesion = exigirDirectivo();
+
+  const listado = document.getElementById("listado");
+  const totalInscritos = document.getElementById("total-inscritos");
+  const totalEventos = document.getElementById("total-eventos");
+  const totalCategorias = document.getElementById("total-categorias");
+  const buscador = document.getElementById("buscador-inscritos") as HTMLInputElement | null;
+  const filtroActivo = document.getElementById("filtro-activo");
+
+  const ETIQUETA_ESTADO: Record<string, string> = {
+    programada: "Programada",
+    inscripciones_cerradas: "Inscripciones cerradas",
+    en_disputa: "En disputa",
+    finalizada: "Finalizada",
+  };
+
+  function normalizar(texto: string): string {
+    return texto.trim().toLowerCase();
+  }
+
+  function coincide(piloto: { nombre: string; documento: string; id: string } | undefined, filtro: string): boolean {
+    if (!filtro) return true;
+    if (!piloto) return false;
+    return (
+      normalizar(piloto.nombre).includes(filtro) ||
+      normalizar(piloto.documento).includes(filtro) ||
+      normalizar(piloto.id).includes(filtro)
+    );
+  }
+
+  function pintar(): void {
+    if (!sesion) return;
+    const { eventos, totalInscritos: total, categorias } = listadoInscripciones(leerEstado());
+    const filtro = normalizar(buscador?.value ?? "");
+
+    if (totalInscritos) totalInscritos.textContent = String(total);
+    if (totalEventos) {
+      totalEventos.textContent = String(eventos.filter((evento) => evento.inscritos.length > 0).length);
+    }
+    if (totalCategorias) totalCategorias.textContent = String(categorias.length);
+    if (filtroActivo) {
+      filtroActivo.textContent = filtro ? `Filtro: ${filtro}` : "";
+    }
+
+    if (!listado) return;
+
+    if (total === 0) {
+      listado.innerHTML =
+        '<p class="border border-border px-4 py-6 font-mono text-xs tracking-wide text-muted-foreground">Todavía no hay inscripciones registradas.</p>';
+      return;
+    }
+
+    listado.innerHTML = eventos
+      .map((evento) => {
+        const inscritos = evento.inscritos.filter(({ piloto }) => coincide(piloto, filtro));
+
+        if (inscritos.length === 0) {
+          return "";
+        }
+
+        const resumenCategorias = evento.porCategoria
+          .map(({ categoria, total: cantidad }) => `${categoria} · ${cantidad}`)
+          .join(" / ");
+
+        return `
+        <article class="border border-border bg-card" data-evento="${esc(evento.ronda.id)}">
+          <header class="grid gap-4 border-b border-border p-6 md:grid-cols-[1fr_auto] md:items-end">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-widest text-primary">
+                ${esc(evento.ronda.codigo)} · ${esc(evento.ronda.fecha)} · ${esc(evento.ronda.ciudad)}
+              </p>
+              <h3 class="mt-2 font-display text-4xl uppercase leading-none">${esc(evento.ronda.nombre)}</h3>
+              <p class="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                ${esc(evento.ronda.pista)} · ${esc(
+                  ETIQUETA_ESTADO[evento.ronda.estado] ?? evento.ronda.estado,
+                )}
+              </p>
+            </div>
+            <div class="md:text-right">
+              <p class="font-display text-5xl uppercase leading-none">${inscritos.length}</p>
+              <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                ${inscritos.length === 1 ? "inscrito" : "inscritos"}
+              </p>
+              ${
+                resumenCategorias
+                  ? `<p class="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">${esc(
+                      resumenCategorias,
+                    )}</p>`
+                  : ""
+              }
+            </div>
+          </header>
+
+          <ul class="divide-y divide-border">
+            ${inscritos
+              .map(
+                ({ inscripcion, piloto }) => `
+              <li class="grid gap-2 px-6 py-4 md:grid-cols-[1fr_auto] md:items-center">
+                <div>
+                  <p class="text-lg font-medium">${esc(piloto?.nombre ?? "Piloto desconocido")}</p>
+                  <p class="mt-1 font-mono text-[10px] tracking-wide text-muted-foreground">
+                    ${esc(piloto?.id ?? inscripcion.pilotoId)} · ${esc(
+                      piloto?.documento ?? "documento no disponible",
+                    )} · ${esc(piloto?.email ?? "sin correo")}
+                  </p>
+                </div>
+                <div class="md:text-right">
+                  <p class="font-mono text-xs uppercase tracking-widest text-primary">${esc(
+                    inscripcion.categoria,
+                  )}</p>
+                  <p class="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    ${esc(inscripcion.codigo)} · ${esc(fechaLegible(inscripcion.creadaEn))}
+                  </p>
+                </div>
+              </li>`,
+              )
+              .join("")}
+          </ul>
+        </article>`;
+      })
+      .join("");
+
+    if (!listado.innerHTML.trim()) {
+      listado.innerHTML =
+        '<p class="border border-border px-4 py-6 font-mono text-xs tracking-wide text-muted-foreground">Ningún piloto coincide con la búsqueda.</p>';
+    }
+  }
+
+  buscador?.addEventListener("input", pintar);
+
+  pintar();
+</script>

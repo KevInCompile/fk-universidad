@@ -83,3 +83,79 @@ describe("store en el navegador", () => {
     expect(estadoInicial().licencias).toHaveLength(0);
   });
 });
+
+describe("inscripciones de la semilla", () => {
+  it("incluye inscritos de ejemplo que apuntan a pilotos y rondas reales", () => {
+    const estado = estadoInicial();
+
+    expect(estado.inscripciones.length).toBeGreaterThan(0);
+    for (const inscripcion of estado.inscripciones) {
+      expect(estado.pilotos.some((piloto) => piloto.id === inscripcion.pilotoId)).toBe(true);
+      expect(estado.rondas.some((ronda) => ronda.id === inscripcion.rondaId)).toBe(true);
+    }
+  });
+});
+
+/** Mock con cuota limitada: falla cuando el payload supera el límite. */
+class LocalStorageCuotaMock {
+  guardado = "";
+
+  constructor(private readonly limite: number) {}
+
+  getItem(): string | null {
+    return null;
+  }
+
+  setItem(_clave: string, valor: string): void {
+    if (valor.length > this.limite) {
+      const error = new Error("QuotaExceededError");
+      error.name = "QuotaExceededError";
+      throw error;
+    }
+    this.guardado = valor;
+  }
+
+  removeItem(): void {}
+
+  clear(): void {}
+}
+
+describe("cuota del almacenamiento del navegador", () => {
+  it("guarda la licencia aunque no entre la previsualización de la foto", () => {
+    const estado = estadoInicial();
+    estado.licencias = [
+      {
+        id: "LIC-1",
+        pilotoId: estado.pilotos[0].id,
+        categoria: "Infantil",
+        estado: "en_validacion",
+        solicitadaEn: "2026-11-01T10:00:00.000Z",
+        documentoNombre: "cedula.pdf",
+        documentoTipo: "application/pdf",
+        fotoNombre: "foto.jpg",
+        fotoPreview: `data:image/jpeg;base64,${"A".repeat(5000)}`,
+      },
+    ];
+
+    const sinPrevisualizacion = {
+      ...estado,
+      licencias: estado.licencias.map((licencia) => ({ ...licencia, fotoPreview: undefined })),
+    };
+    const limite = JSON.stringify(sinPrevisualizacion).length + 50;
+
+    const mock = new LocalStorageCuotaMock(limite);
+    (globalThis as { localStorage?: unknown }).localStorage = mock;
+
+    expect(() => escribirEstado(estado)).not.toThrow();
+    expect(mock.guardado).toContain("LIC-1");
+    expect(mock.guardado).not.toContain("data:image/jpeg;base64");
+  });
+
+  it("avisa con un mensaje claro cuando la cuota está llena", () => {
+    (globalThis as { localStorage?: unknown }).localStorage = new LocalStorageCuotaMock(10);
+
+    expect(() => escribirEstado(estadoInicial())).toThrowError(
+      /almacenamiento del navegador está lleno/i,
+    );
+  });
+});

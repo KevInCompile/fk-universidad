@@ -17,13 +17,38 @@ function navegador(): boolean {
   return typeof localStorage !== "undefined";
 }
 
+/**
+ * Inscripciones de ejemplo: un par de pilotos por fecha para que el listado de
+ * inscritos del panel de directiva tenga contenido desde el primer arranque.
+ */
+function inscripcionesSemilla(): Inscripcion[] {
+  const porDocumento = new Map(pilotosSemilla.map((piloto) => [piloto.documento, piloto.id]));
+
+  const base: [documento: string, rondaId: string, categoria: string, codigo: string][] = [
+    ["10203345678", "r01", "Infantil", "INS-R01-A1B2"],
+    ["10987654321", "r01", "Iniciación", "INS-R01-C3D4"],
+    ["10452218893", "r02", "Aficionado", "INS-R02-E5F6"],
+    ["10203345678", "r02", "Infantil", "INS-R02-G7H8"],
+    ["10987654321", "r03", "Preinfantil", "INS-R03-J9K0"],
+  ];
+
+  return base.map(([documento, rondaId, categoria, codigo], indice) => ({
+    id: `INS-S${String(indice + 1).padStart(2, "0")}`,
+    pilotoId: porDocumento.get(documento) ?? "",
+    rondaId,
+    categoria,
+    codigo,
+    creadaEn: `2026-10-${String(10 + indice).padStart(2, "0")}T10:00:00.000Z`,
+  }));
+}
+
 export function estadoInicial(): Estado {
   return {
     noticias: structuredClone(noticias),
     rondas: structuredClone(rondas),
     pilotos: structuredClone(pilotosSemilla),
     licencias: [],
-    inscripciones: [],
+    inscripciones: inscripcionesSemilla(),
   };
 }
 
@@ -56,7 +81,28 @@ export function leerEstado(): Estado {
 
 export function escribirEstado(estado: Estado): void {
   if (!navegador()) return;
-  localStorage.setItem(CLAVE_ESTADO, JSON.stringify(estado));
+
+  try {
+    localStorage.setItem(CLAVE_ESTADO, JSON.stringify(estado));
+  } catch {
+    // Cuota llena: lo más pesado son las previsualizaciones de las fotografías.
+    // Se descartan y se reintenta una sola vez antes de fallar.
+    const sinPrevisualizaciones: Estado = {
+      ...estado,
+      licencias: estado.licencias.map((licencia) => ({
+        ...licencia,
+        fotoPreview: undefined,
+      })),
+    };
+
+    try {
+      localStorage.setItem(CLAVE_ESTADO, JSON.stringify(sinPrevisualizaciones));
+    } catch {
+      throw new Error(
+        "No se pudo guardar la información: el almacenamiento del navegador está lleno.",
+      );
+    }
+  }
 }
 
 export function reiniciarEstado(): Estado {
