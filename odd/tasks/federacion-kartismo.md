@@ -50,6 +50,7 @@ Contrato compartido (lo escribe el orquestador, no los workers): `src/lib/types.
 - **L2** — 2026-11-08 — Decisiones: D1 login simulado, D2 HTML para imprimir, D3 mapa real Leaflet + OSM.
 - **L3** — 2026-11-08 — "Por el momento coment la sección de escuelas, tambien usa idioma neutro no elegí si no elige en la web".
 - **L4** — 2026-11-08 — Verificación: `npm run build` (22 páginas, exit 0), `npx vitest run` (6 archivos, 65 pruebas, verde) y E2E en navegador real con Playwright (28 comprobaciones, 0 fallos) sobre el flujo registro → solicitud de licencia → validación por directiva → inscripción por QR → licencia activa imprimible.
+- **L5** — 2026-11-08 — El verificador independiente que pedía el plan de riesgo de `assess` fue cancelado por el usuario (no aportaba sobre lo ya cubierto por unit tests + E2E en navegador). La cobertura de revisión queda: 65 pruebas unitarias, E2E con Playwright y chequeo responsive de 13 rutas.
 
 ## Notas de implementación
 
