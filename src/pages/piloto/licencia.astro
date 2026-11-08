@@ -1,0 +1,294 @@
+---
+import PilotoShell from "../../components/piloto/PilotoShell.astro";
+import { categorias } from "../../data/site";
+---
+
+<PilotoShell
+  titulo="Solicitar licencia"
+  eyebrow="Licencia de piloto"
+  descripcion="Carga de documento de identidad y fotografía para iniciar la validación de la licencia."
+>
+  <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+    <section class="border border-border bg-card p-6 md:p-8">
+      <h2 class="font-display text-3xl uppercase leading-none">
+        Formulario de solicitud
+      </h2>
+      <p class="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        La directiva valida tu solicitud
+      </p>
+
+      <form id="form-licencia" class="mt-8 space-y-6" novalidate>
+        <label class="block">
+          <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Categoría
+          </span>
+          <select
+            id="categoria"
+            name="categoria"
+            class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+          >
+            <option value="">Seleccione una categoría</option>
+            {
+              categorias.map((categoria) => (
+                <option value={categoria.nombre}>
+                  {categoria.nombre} · {categoria.edadMin}-{categoria.edadMax} años ·{" "}
+                  {categoria.kart}
+                </option>
+              ))
+            }
+          </select>
+        </label>
+
+        <div class="grid gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block">
+              <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Documento de identidad
+              </span>
+              <input
+                type="file"
+                id="documento-archivo"
+                name="documento-archivo"
+                accept="application/pdf,image/*"
+                class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground file:mr-4 file:border-0 file:bg-primary file:px-3 file:py-1 file:font-mono file:text-xs file:uppercase file:tracking-widest file:text-primary-foreground"
+              />
+            </label>
+            <p
+              id="documento-info"
+              class="mt-2 hidden font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            >
+            </p>
+          </div>
+
+          <div>
+            <label class="block">
+              <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                Fotografía
+              </span>
+              <input
+                type="file"
+                id="foto-archivo"
+                name="foto-archivo"
+                accept="image/*"
+                class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground file:mr-4 file:border-0 file:bg-primary file:px-3 file:py-1 file:font-mono file:text-xs file:uppercase file:tracking-widest file:text-primary-foreground"
+              />
+            </label>
+            <p
+              id="foto-info"
+              class="mt-2 hidden font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            >
+            </p>
+            <img
+              id="foto-preview"
+              alt="Vista previa de la fotografía"
+              class="mt-4 hidden h-32 w-32 border border-border object-cover"
+            />
+          </div>
+        </div>
+
+        <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          El documento puede ser PDF o imagen. La fotografía debe ser una
+          imagen (JPG o PNG).
+        </p>
+
+        <p
+          id="error"
+          class="hidden border border-destructive bg-destructive/10 px-4 py-3 font-mono text-xs uppercase tracking-widest text-destructive"
+          role="alert"
+        >
+        </p>
+
+        <button
+          type="submit"
+          class="w-full bg-primary px-6 py-4 font-display text-2xl uppercase text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          Enviar solicitud
+        </button>
+      </form>
+
+      <div
+        id="exito"
+        class="mt-8 hidden border border-primary bg-primary/10 p-6"
+        aria-live="polite"
+      >
+        <p class="font-mono text-xs uppercase tracking-widest text-primary">
+          Solicitud enviada
+        </p>
+        <p class="mt-2 text-muted-foreground">
+          Tu solicitud quedó en estado <strong>en validación</strong>. La
+          directiva la revisa y, cuando la apruebe, tu licencia queda activa.
+        </p>
+        <a
+          href="/piloto"
+          class="mt-6 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+        >
+          Volver a mi panel
+        </a>
+      </div>
+    </section>
+
+    <aside class="space-y-8">
+      <div class="border border-border p-6">
+        <h2 class="font-display text-2xl uppercase leading-none">
+          Categorías 2027
+        </h2>
+        <ul class="mt-4 divide-y divide-border border-y">
+          {
+            categorias.map((categoria) => (
+              <li class="py-3">
+                <p class="font-display text-xl uppercase leading-none">
+                  {categoria.nombre}
+                </p>
+                <p class="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  {categoria.edadMin}-{categoria.edadMax} años · {categoria.kart}
+                </p>
+                <p class="mt-2 text-sm text-muted-foreground">
+                  {categoria.descripcion}
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="border border-border bg-card p-6">
+        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          Cómo funciona
+        </h2>
+        <ol class="mt-4 space-y-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          <li class="border-l-2 border-primary pl-4">01 · Seleccione la categoría</li>
+          <li class="border-l-2 border-primary pl-4">02 · Cargue el documento y la foto</li>
+          <li class="border-l-2 border-primary pl-4">03 · La directiva valida</li>
+          <li class="border-l-2 border-primary pl-4">04 · Descargue su licencia</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</PilotoShell>
+
+<script>
+  import { solicitarLicencia } from "../../lib/store";
+  import { sesionPiloto } from "../../components/piloto/sesion";
+
+  const form = document.querySelector<HTMLFormElement>("#form-licencia");
+  const cajaError = document.querySelector<HTMLParagraphElement>("#error");
+  const bloqueExito = document.querySelector<HTMLDivElement>("#exito");
+
+  function mostrarError(mensaje: string): void {
+    if (!cajaError) return;
+    cajaError.textContent = mensaje;
+    cajaError.classList.remove("hidden");
+  }
+
+  function limpiarError(): void {
+    if (!cajaError) return;
+    cajaError.textContent = "";
+    cajaError.classList.add("hidden");
+  }
+
+  function archivo(id: string): File | null {
+    const input = document.querySelector<HTMLInputElement>(`#${id}`);
+    if (!input || !input.files || input.files.length === 0) return null;
+    return input.files[0];
+  }
+
+  function describir(id: string): void {
+    const archivoId = `${id}-archivo`;
+    const info = document.querySelector<HTMLParagraphElement>(`#${id}-info`);
+    const preview = document.querySelector<HTMLImageElement>("#foto-preview");
+    const file = archivo(archivoId);
+
+    if (!info) return;
+
+    if (!file) {
+      info.classList.add("hidden");
+      info.textContent = "";
+      if (preview) preview.classList.add("hidden");
+      return;
+    }
+
+    info.textContent = `Archivo: ${file.name} · Tipo: ${file.type || "desconocido"}`;
+    info.classList.remove("hidden");
+
+    if (id === "foto" && preview) {
+      const lector = new FileReader();
+      lector.onload = () => {
+        preview.src = String(lector.result ?? "");
+        preview.classList.remove("hidden");
+      };
+      lector.readAsDataURL(file);
+    }
+  }
+
+  function leerFotoPreview(): Promise<string | undefined> {
+    const file = archivo("foto-archivo");
+    if (!file) return Promise.resolve(undefined);
+
+    return new Promise((resolve) => {
+      const lector = new FileReader();
+      lector.onload = () => resolve(String(lector.result ?? ""));
+      lector.onerror = () => resolve(undefined);
+      lector.readAsDataURL(file);
+    });
+  }
+
+  document.querySelector("#documento-archivo")?.addEventListener("change", () => {
+    describir("documento");
+  });
+  document.querySelector("#foto-archivo")?.addEventListener("change", () => {
+    describir("foto");
+  });
+
+  if (form) {
+    form.addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      limpiarError();
+
+      const sesion = sesionPiloto();
+      if (!sesion?.pilotoId) return;
+
+      const select = document.querySelector<HTMLSelectElement>("#categoria");
+      const categoria = select ? select.value : "";
+      if (!categoria) {
+        mostrarError("Seleccione la categoría de la licencia.");
+        return;
+      }
+
+      const documento = archivo("documento-archivo");
+      if (!documento) {
+        mostrarError("Cargue el documento de identidad (PDF o imagen).");
+        return;
+      }
+
+      const esPdf = documento.type === "application/pdf";
+      const esImagen = documento.type.startsWith("image/");
+      if (!esPdf && !esImagen) {
+        mostrarError("El documento debe ser un PDF o una imagen.");
+        return;
+      }
+
+      const foto = archivo("foto-archivo");
+      if (!foto) {
+        mostrarError("Cargue la fotografía del piloto.");
+        return;
+      }
+      if (!foto.type.startsWith("image/")) {
+        mostrarError("La fotografía debe ser una imagen (JPG o PNG).");
+        return;
+      }
+
+      const preview = await leerFotoPreview();
+
+      solicitarLicencia(sesion.pilotoId, {
+        categoria,
+        documentoNombre: documento.name,
+        documentoTipo: documento.type,
+        fotoNombre: foto.name,
+        fotoPreview: preview,
+      });
+
+      form.classList.add("hidden");
+      bloqueExito?.classList.remove("hidden");
+    });
+  }
+</script>

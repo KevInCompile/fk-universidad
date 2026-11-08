@@ -1,0 +1,266 @@
+---
+import PilotoShell from "../../components/piloto/PilotoShell.astro";
+---
+
+<PilotoShell
+  titulo="Registro de piloto"
+  eyebrow="Alta de piloto"
+  descripcion="Registro de piloto en la plataforma de la Federación de Kartismo."
+  mostrarSalir={false}
+>
+  <div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+    <section class="border border-border bg-card p-6 md:p-8">
+      <h2 class="font-display text-3xl uppercase leading-none">
+        Datos del piloto
+      </h2>
+      <p class="mt-2 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+        Todos los campos son obligatorios
+      </p>
+
+      <form id="form-registro" class="mt-8 space-y-5" novalidate>
+        <div class="grid gap-5 sm:grid-cols-2">
+          <label class="block sm:col-span-2">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Nombre completo
+            </span>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              autocomplete="name"
+              placeholder="Ej. Valentina Ríos"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            />
+          </label>
+
+          <label class="block">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Documento de identidad
+            </span>
+            <input
+              type="text"
+              id="documento"
+              name="documento"
+              inputmode="numeric"
+              placeholder="Ej. 10203345678"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            />
+          </label>
+
+          <label class="block">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Fecha de nacimiento
+            </span>
+            <input
+              type="date"
+              id="nacimiento"
+              name="nacimiento"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            />
+          </label>
+
+          <label class="block">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Correo electrónico
+            </span>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              autocomplete="email"
+              placeholder="piloto@correo.co"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            />
+          </label>
+
+          <label class="block">
+            <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              Teléfono
+            </span>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              autocomplete="tel"
+              placeholder="+57 300 000 0000"
+              class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+            />
+          </label>
+        </div>
+
+        <p
+          id="error"
+          class="hidden border border-destructive bg-destructive/10 px-4 py-3 font-mono text-xs uppercase tracking-widest text-destructive"
+          role="alert"
+        >
+        </p>
+
+        <button
+          type="submit"
+          class="w-full bg-primary px-6 py-4 font-display text-2xl uppercase text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          Crear mi registro
+        </button>
+      </form>
+
+      <div
+        id="exito"
+        class="mt-8 hidden border border-primary bg-primary/10 p-6"
+        aria-live="polite"
+      >
+        <p class="font-mono text-xs uppercase tracking-widest text-primary">
+          Registro completado
+        </p>
+        <p class="mt-2 text-muted-foreground">
+          Guarde su identificador de piloto. Es único y está ligado a tu
+          documento de identidad.
+        </p>
+
+        <p class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Tu identificador de piloto
+        </p>
+        <p
+          id="piloto-id"
+          class="mt-2 font-display text-4xl uppercase tracking-wide text-primary md:text-5xl"
+        >
+        </p>
+
+        <p class="mt-6 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Redirigiendo a tu panel…
+        </p>
+        <a
+          id="ir-panel"
+          href="/piloto"
+          class="mt-4 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+        >
+          Ir a mi panel
+        </a>
+      </div>
+    </section>
+
+    <aside class="space-y-8">
+      <div class="border border-border p-6">
+        <h2 class="font-display text-2xl uppercase leading-none">
+          Qué obtiene
+        </h2>
+        <ul class="mt-4 space-y-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          <li class="border-l-2 border-primary pl-4">
+            Identificador único ligado a tu documento
+          </li>
+          <li class="border-l-2 border-primary pl-4">
+            Solicitud de licencia con carga de documento y fotografía
+          </li>
+          <li class="border-l-2 border-primary pl-4">
+            Inscripción a rondas por búsqueda o código QR
+          </li>
+          <li class="border-l-2 border-primary pl-4">
+            Licencia imprimible una vez validada por la directiva
+          </li>
+        </ul>
+      </div>
+
+      <div class="border border-border bg-card p-6">
+        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          ¿Ya tiene cuenta?
+        </h2>
+        <p class="mt-4 text-muted-foreground">
+          El acceso de prueba se hace desde el login simulado de la federación.
+        </p>
+        <a
+          href="/login"
+          class="mt-6 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+        >
+          Iniciar sesión
+        </a>
+      </div>
+    </aside>
+  </div>
+</PilotoShell>
+
+<script>
+  import { registrarPiloto, escribirSesion } from "../../lib/store";
+  import { redirigirSiHaySesion } from "../../components/piloto/sesion";
+  import { escapar } from "../../components/piloto/ui";
+
+  const form = document.querySelector<HTMLFormElement>("#form-registro");
+  const cajaError = document.querySelector<HTMLParagraphElement>("#error");
+  const bloqueExito = document.querySelector<HTMLDivElement>("#exito");
+
+  function mostrarError(mensaje: string): void {
+    if (!cajaError) return;
+    cajaError.textContent = mensaje;
+    cajaError.classList.remove("hidden");
+  }
+
+  function limpiarError(): void {
+    if (!cajaError) return;
+    cajaError.textContent = "";
+    cajaError.classList.add("hidden");
+  }
+
+  function valor(id: string): string {
+    const campo = document.querySelector<HTMLInputElement>(`#${id}`);
+    return campo ? campo.value.trim() : "";
+  }
+
+  function validar(): string | null {
+    const nombre = valor("nombre");
+    const documento = valor("documento");
+    const email = valor("email");
+    const telefono = valor("telefono");
+    const nacimiento = valor("nacimiento");
+
+    if (nombre.length < 3) return "Ingrese su nombre completo.";
+    if (documento.replace(/[^0-9A-Za-z]/g, "").length < 6)
+      return "Ingrese un documento de identidad válido.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return "Ingrese un correo electrónico válido.";
+    if (telefono.replace(/[^0-9]/g, "").length < 7)
+      return "Ingrese un teléfono válido.";
+    if (!nacimiento) return "Ingrese su fecha de nacimiento.";
+    if (new Date(nacimiento).getTime() > Date.now())
+      return "La fecha de nacimiento no puede ser futura.";
+
+    return null;
+  }
+
+  if (form && !redirigirSiHaySesion()) {
+    form.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      limpiarError();
+
+      const problema = validar();
+      if (problema) {
+        mostrarError(problema);
+        return;
+      }
+
+      const piloto = registrarPiloto({
+        nombre: valor("nombre"),
+        documento: valor("documento"),
+        email: valor("email"),
+        telefono: valor("telefono"),
+        fechaNacimiento: valor("nacimiento"),
+      });
+
+      escribirSesion({
+        rol: "piloto",
+        nombre: piloto.nombre,
+        pilotoId: piloto.id,
+      });
+
+      const destinoId = document.querySelector<HTMLParagraphElement>("#piloto-id");
+      if (destinoId) destinoId.textContent = piloto.id;
+
+      form.classList.add("hidden");
+      bloqueExito?.classList.remove("hidden");
+
+      const id = escapar(piloto.id);
+      window.setTimeout(() => {
+        window.location.href = "/piloto";
+      }, 2500);
+
+      console.info(`Piloto registrado: ${id}`);
+    });
+  }
+</script>

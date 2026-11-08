@@ -1,0 +1,479 @@
+---
+import PilotoShell from "../../components/piloto/PilotoShell.astro";
+import { categorias } from "../../data/site";
+---
+
+<PilotoShell
+  titulo="Inscripciones"
+  eyebrow="Eventos 2027"
+  descripcion="Inscripción a rondas por búsqueda o por código QR del evento."
+>
+  <template id="opciones-categoria">
+    {
+      categorias.map((categoria) => (
+        <option value={categoria.nombre}>
+          {categoria.nombre} · {categoria.edadMin}-{categoria.edadMax} años
+        </option>
+      ))
+    }
+  </template>
+
+  <div class="grid gap-10 lg:grid-cols-2">
+    <!-- Camino A: búsqueda -->
+    <section class="border border-border bg-card p-6 md:p-8">
+      <p class="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+        Camino 01
+      </p>
+      <h2 class="mt-2 font-display text-3xl uppercase leading-none">
+        Buscar una ronda
+      </h2>
+      <p class="mt-2 text-muted-foreground">
+        Listamos las rondas con inscripciones abiertas. Buscá por nombre o por
+        ciudad y confirmá tu participación.
+      </p>
+
+      <label class="mt-6 block">
+        <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Buscar ronda
+        </span>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Ej. Valle, Bogotá, Gran Premio…"
+          class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+        />
+      </label>
+
+      <p
+        id="sin-resultados"
+        class="mt-6 hidden font-mono text-xs uppercase tracking-widest text-muted-foreground"
+      >
+        No hay rondas que coincidan con la búsqueda.
+      </p>
+
+      <ul id="lista-rondas" class="mt-6 divide-y divide-border border-y">
+      </ul>
+
+      <div
+        id="panel-inscripcion"
+        class="mt-6 hidden border border-primary bg-primary/10 p-6"
+        aria-live="polite"
+      >
+        <p class="font-mono text-xs uppercase tracking-widest text-primary">
+          Confirmar inscripción
+        </p>
+        <p id="ronda-elegida" class="mt-2 font-display text-2xl uppercase leading-none">
+        </p>
+
+        <label class="mt-6 block">
+          <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Categoría
+          </span>
+          <select
+            id="categoria-inscripcion"
+            class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+          >
+          </select>
+        </label>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            id="confirmar-inscripcion"
+            class="bg-primary px-6 py-3 font-mono text-xs uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Confirmar inscripción
+          </button>
+          <button
+            type="button"
+            id="cancelar-inscripcion"
+            class="border border-border px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Camino B: código QR -->
+    <section class="border border-border bg-card p-6 md:p-8">
+      <p class="font-mono text-xs uppercase tracking-[0.3em] text-primary">
+        Camino 02
+      </p>
+      <h2 class="mt-2 font-display text-3xl uppercase leading-none">
+        Código QR del evento
+      </h2>
+      <p class="mt-2 text-muted-foreground">
+        Escaneá el QR del evento o dictá el código de ronda (ej.
+        FEDKART-R02-2027) y validalo.
+      </p>
+
+      <label class="mt-6 block">
+        <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Código QR
+        </span>
+        <input
+          type="text"
+          id="codigo-qr"
+          placeholder="FEDKART-R02-2027"
+          class="mt-2 w-full border border-border bg-background px-4 py-3 font-mono uppercase tracking-widest text-foreground outline-none transition-colors focus:border-primary"
+        />
+      </label>
+
+      <label class="mt-5 block">
+        <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Categoría
+        </span>
+        <select
+          id="categoria-qr"
+          class="mt-2 w-full border border-border bg-background px-4 py-3 text-foreground outline-none transition-colors focus:border-primary"
+        >
+        </select>
+      </label>
+
+      <button
+        type="button"
+        id="validar-codigo"
+        class="mt-6 w-full border border-foreground px-6 py-4 font-display text-2xl uppercase transition-colors hover:bg-foreground hover:text-background"
+      >
+        Validar código
+      </button>
+
+      <p
+        id="error-codigo"
+        class="mt-6 hidden border border-destructive bg-destructive/10 px-4 py-3 font-mono text-xs uppercase tracking-widest text-destructive"
+        role="alert"
+      >
+      </p>
+
+      <p
+        id="exito-codigo"
+        class="mt-6 hidden border border-primary bg-primary/10 px-4 py-3 font-mono text-xs uppercase tracking-widest text-primary"
+        aria-live="polite"
+      >
+      </p>
+    </section>
+  </div>
+
+  <section class="mt-12">
+    <div class="mb-6 flex items-center gap-4">
+      <span class="checker-sm h-4 w-8" aria-hidden="true"></span>
+      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Mis inscripciones
+      </h2>
+      <span class="h-px flex-1 bg-border" aria-hidden="true"></span>
+    </div>
+
+    <div id="lista-inscripciones" class="grid gap-px bg-border md:grid-cols-2">
+    </div>
+
+    <p
+      id="sin-inscripciones"
+      class="hidden font-mono text-xs uppercase tracking-widest text-muted-foreground"
+    >
+      Todavía no estás inscrito en ninguna ronda.
+    </p>
+  </section>
+</PilotoShell>
+
+<script>
+  import QRCode from "qrcode";
+  import {
+    leerEstado,
+    inscribirEnRonda,
+    inscribirPorCodigo,
+    inscripcionesDe,
+  } from "../../lib/store";
+  import { sesionPiloto } from "../../components/piloto/sesion";
+  import { escapar, formatoFecha } from "../../components/piloto/ui";
+
+  interface Ronda {
+    id: string;
+    codigo: string;
+    fecha: string;
+    nombre: string;
+    ciudad: string;
+    pista: string;
+    codigoQr: string;
+    estado: string;
+  }
+
+  interface Inscripcion {
+    id: string;
+    rondaId: string;
+    categoria: string;
+    codigo: string;
+    creadaEn: string;
+  }
+
+  const listaRondas = document.querySelector<HTMLUListElement>("#lista-rondas");
+  const listaInscripciones = document.querySelector<HTMLDivElement>(
+    "#lista-inscripciones",
+  );
+  const buscador = document.querySelector<HTMLInputElement>("#buscador");
+  const panelInscripcion = document.querySelector<HTMLDivElement>(
+    "#panel-inscripcion",
+  );
+
+  let rondas: Ronda[] = [];
+  let rondaElegida: Ronda | null = null;
+
+  function categoriasDisponibles(): HTMLOptionElement[] {
+    const origen = document.querySelector<HTMLTemplateElement>(
+      "#opciones-categoria",
+    );
+    if (!origen) return [];
+    return Array.from(origen.content.querySelectorAll("option")).map((opcion) =>
+      opcion.cloneNode(true) as HTMLOptionElement,
+    );
+  }
+
+  function pintarSelectores(): void {
+    const selectInscripcion = document.querySelector<HTMLSelectElement>(
+      "#categoria-inscripcion",
+    );
+    const selectQr = document.querySelector<HTMLSelectElement>("#categoria-qr");
+
+    for (const select of [selectInscripcion, selectQr]) {
+      if (!select) continue;
+      select.innerHTML = "";
+      const vacia = document.createElement("option");
+      vacia.value = "";
+      vacia.textContent = "Seleccione una categoría";
+      select.appendChild(vacia);
+      for (const opcion of categoriasDisponibles()) select.appendChild(opcion);
+    }
+  }
+
+  function pintarRondas(): void {
+    if (!listaRondas) return;
+
+    const texto = buscador ? buscador.value.trim().toLowerCase() : "";
+    const filtradas = rondas.filter((ronda) => {
+      if (!texto) return true;
+      return (
+        ronda.nombre.toLowerCase().includes(texto) ||
+        ronda.ciudad.toLowerCase().includes(texto) ||
+        ronda.pista.toLowerCase().includes(texto)
+      );
+    });
+
+    const sinResultados = document.querySelector("#sin-resultados");
+    sinResultados?.classList.toggle("hidden", filtradas.length > 0);
+
+    listaRondas.innerHTML = filtradas
+      .map(
+        (ronda) => `
+        <li class="py-5">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-widest text-primary">${escapar(ronda.codigo)} · ${escapar(ronda.fecha)}</p>
+              <p class="mt-1 font-display text-2xl uppercase leading-none">${escapar(ronda.nombre)}</p>
+              <p class="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">${escapar(ronda.ciudad)} · ${escapar(ronda.pista)}</p>
+            </div>
+            <button type="button" data-ronda="${escapar(ronda.id)}" class="border border-foreground px-5 py-2 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background">Inscribirme</button>
+          </div>
+        </li>`,
+      )
+      .join("");
+
+    listaRondas.querySelectorAll<HTMLButtonElement>("button[data-ronda]").forEach(
+      (boton) => {
+        boton.addEventListener("click", () => {
+          const id = boton.dataset.ronda;
+          rondaElegida = rondas.find((ronda) => ronda.id === id) ?? null;
+          if (!rondaElegida) return;
+
+          const destino = document.querySelector("#ronda-elegida");
+          if (destino) destino.textContent = rondaElegida.nombre;
+          panelInscripcion?.classList.remove("hidden");
+          panelInscripcion?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+      },
+    );
+  }
+
+  async function pintarQr(contenedor: HTMLElement, codigo: string): Promise<void> {
+    try {
+      const svg = await QRCode.toString(codigo, {
+        type: "svg",
+        margin: 1,
+        width: 180,
+      });
+      contenedor.innerHTML = svg;
+      return;
+    } catch (error) {
+      console.warn("No se pudo generar el SVG del QR", error);
+    }
+
+    try {
+      const url = await QRCode.toDataURL(codigo, { margin: 1, width: 180 });
+      contenedor.innerHTML = `<img src="${url}" alt="Código QR de inscripción ${escapar(codigo)}" width="180" height="180" />`;
+    } catch (error) {
+      console.warn("No se pudo generar el QR", error);
+      contenedor.innerHTML = `<p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">QR no disponible</p>`;
+    }
+  }
+
+  function pintarInscripciones(): void {
+    if (!listaInscripciones) return;
+
+    const sesion = sesionPiloto();
+    if (!sesion?.pilotoId) return;
+
+    const estado = leerEstado();
+    const inscripciones: Inscripcion[] = inscripcionesDe(sesion.pilotoId);
+
+    const sinInscripciones = document.querySelector("#sin-inscripciones");
+    sinInscripciones?.classList.toggle("hidden", inscripciones.length > 0);
+
+    listaInscripciones.innerHTML = inscripciones
+      .map((inscripcion) => {
+        const ronda = estado.rondas.find((item) => item.id === inscripcion.rondaId);
+        return `
+        <article class="bg-card p-6">
+          <p class="font-mono text-[10px] uppercase tracking-widest text-primary">${escapar(ronda?.codigo ?? "Ronda")} · ${escapar(ronda?.fecha ?? "")}</p>
+          <p class="mt-1 font-display text-2xl uppercase leading-none">${escapar(ronda?.nombre ?? "Ronda eliminada")}</p>
+          <p class="mt-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">${escapar(ronda?.ciudad ?? "")} · ${escapar(ronda?.pista ?? "")}</p>
+
+          <dl class="mt-5 grid gap-px bg-border sm:grid-cols-2">
+            <div class="bg-background px-4 py-3">
+              <dt class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Categoría</dt>
+              <dd class="mt-1">${escapar(inscripcion.categoria)}</dd>
+            </div>
+            <div class="bg-background px-4 py-3">
+              <dt class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Código de inscripción</dt>
+              <dd class="mt-1 font-mono">${escapar(inscripcion.codigo)}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-5 flex items-center gap-5">
+            <div data-qr="${escapar(inscripcion.codigo)}" class="w-40 bg-white p-2"></div>
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Presentá este QR en la acreditación
+            </p>
+          </div>
+
+          <p class="mt-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            Inscrita el ${formatoFecha(inscripcion.creadaEn)}
+          </p>
+        </article>`;
+      })
+      .join("");
+
+    listaInscripciones
+      .querySelectorAll<HTMLElement>("[data-qr]")
+      .forEach((contenedor) => {
+        const codigo = contenedor.dataset.qr;
+        if (codigo) void pintarQr(contenedor, codigo);
+      });
+  }
+
+  function iniciar(): void {
+    const sesion = sesionPiloto();
+    if (!sesion?.pilotoId) return;
+
+    rondas = leerEstado().rondas.filter((ronda) => ronda.estado === "programada");
+    pintarSelectores();
+    pintarRondas();
+    pintarInscripciones();
+
+    buscador?.addEventListener("input", pintarRondas);
+
+    document.querySelector("#cancelar-inscripcion")?.addEventListener("click", () => {
+      panelInscripcion?.classList.add("hidden");
+      rondaElegida = null;
+    });
+
+    document
+      .querySelector("#confirmar-inscripcion")
+      ?.addEventListener("click", () => {
+        if (!rondaElegida) return;
+
+        const select = document.querySelector<HTMLSelectElement>(
+          "#categoria-inscripcion",
+        );
+        const categoria = select ? select.value : "";
+        if (!categoria) {
+          window.alert("Seleccione la categoría de la inscripción.");
+          return;
+        }
+
+        const sesion = sesionPiloto();
+        if (!sesion?.pilotoId) return;
+
+        const resultado = inscribirEnRonda(
+          sesion.pilotoId,
+          rondaElegida.id,
+          categoria,
+        );
+
+        const mensaje = document.querySelector("#exito-codigo");
+        const error = document.querySelector("#error-codigo");
+        error?.classList.add("hidden");
+
+        if (mensaje) {
+          mensaje.textContent = resultado.repetida
+            ? `Ya estabas inscrito en ${rondaElegida.nombre}.`
+            : `Inscripción confirmada en ${rondaElegida.nombre}.`;
+          mensaje.classList.remove("hidden");
+        }
+
+        panelInscripcion?.classList.add("hidden");
+        rondaElegida = null;
+        pintarInscripciones();
+      });
+
+    document.querySelector("#validar-codigo")?.addEventListener("click", () => {
+      const campo = document.querySelector<HTMLInputElement>("#codigo-qr");
+      const codigo = campo ? campo.value.trim() : "";
+      const error = document.querySelector("#error-codigo");
+      const exito = document.querySelector("#exito-codigo");
+
+      error?.classList.add("hidden");
+      exito?.classList.add("hidden");
+
+      if (!codigo) {
+        if (error) {
+          error.textContent = "Ingrese el código QR o el código de ronda.";
+          error.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const select = document.querySelector<HTMLSelectElement>("#categoria-qr");
+      const categoria = select ? select.value : "";
+      if (!categoria) {
+        if (error) {
+          error.textContent = "Seleccione la categoría de la inscripción.";
+          error.classList.remove("hidden");
+        }
+        return;
+      }
+
+      const sesion = sesionPiloto();
+      if (!sesion?.pilotoId) return;
+
+      const resultado = inscribirPorCodigo(sesion.pilotoId, codigo, categoria);
+
+      if (!resultado) {
+        if (error) {
+          error.textContent = `El código ${codigo} no corresponde a ninguna ronda disponible.`;
+          error.classList.remove("hidden");
+        }
+        return;
+      }
+
+      if (exito) {
+        exito.textContent = resultado.repetida
+          ? `Código válido: ${resultado.ronda.nombre}. Ya estabas inscrito en esta ronda.`
+          : `Código válido: te inscribiste en ${resultado.ronda.nombre}.`;
+        exito.classList.remove("hidden");
+      }
+
+      pintarInscripciones();
+    });
+  }
+
+  iniciar();
+</script>

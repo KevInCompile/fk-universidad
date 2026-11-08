@@ -1,0 +1,228 @@
+---
+import PilotoShell from "../../components/piloto/PilotoShell.astro";
+---
+
+<PilotoShell
+  titulo="Licencia activa"
+  eyebrow="Licencia de piloto"
+  descripcion="Licencia de piloto activa, lista para imprimir o guardar como PDF."
+  tituloNoImprimir={true}
+>
+  <div id="aviso" class="hidden border border-destructive bg-destructive/10 p-6">
+    <p class="font-mono text-xs uppercase tracking-widest text-destructive">
+      Todavía no tiene una licencia activa
+    </p>
+    <p class="mt-2 text-muted-foreground">
+      La licencia se habilita cuando la directiva valida tu solicitud.
+    </p>
+    <a
+      href="/piloto"
+      class="mt-6 inline-block border border-foreground px-6 py-3 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+    >
+      Volver a mi panel
+    </a>
+  </div>
+
+  <div id="licencia" class="hidden">
+    <div class="grid gap-10 lg:grid-cols-[1fr_0.8fr]">
+      <article
+        id="carnet"
+        class="carnet border-2 border-foreground bg-card p-8 md:p-10"
+      >
+        <div class="flex items-start justify-between gap-6 border-b-2 border-foreground pb-6">
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Federación de Kartismo
+            </p>
+            <h2 class="mt-2 font-display text-4xl uppercase leading-none md:text-5xl">
+              Licencia de <span class="text-primary">piloto</span>
+            </h2>
+          </div>
+          <div class="text-right">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Temporada
+            </p>
+            <p class="font-display text-3xl leading-none">2027</p>
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-px bg-border sm:grid-cols-2">
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Identificador único
+            </p>
+            <p
+              id="campo-id"
+              class="mt-1 font-display text-3xl uppercase tracking-wide text-primary"
+            >
+            </p>
+          </div>
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Estado
+            </p>
+            <p id="campo-estado" class="mt-1 font-display text-3xl uppercase">
+            </p>
+          </div>
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Nombre
+            </p>
+            <p id="campo-nombre" class="mt-1 text-xl"></p>
+          </div>
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Documento
+            </p>
+            <p id="campo-documento" class="mt-1 text-xl"></p>
+          </div>
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Categoría
+            </p>
+            <p id="campo-categoria" class="mt-1 text-xl"></p>
+          </div>
+          <div class="bg-card px-4 py-4">
+            <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Vigencia
+            </p>
+            <p id="campo-vigencia" class="mt-1 text-xl"></p>
+          </div>
+        </div>
+
+        <p class="mt-8 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+          Documento de identidad vigente y licencia de piloto autorizada para
+          participar en las rondas del campeonato nacional 2027.
+        </p>
+      </article>
+
+      <aside class="space-y-8">
+        <div class="border border-border bg-card p-6 no-print">
+          <h2 class="font-display text-2xl uppercase leading-none">
+            Descargar / imprimir
+          </h2>
+          <p class="mt-3 text-muted-foreground">
+            Al imprimir se abre el diálogo del navegador: ahí puede elegir
+            <strong>Guardar como PDF</strong> para descargar la licencia en tu
+            equipo.
+          </p>
+          <button
+            type="button"
+            id="imprimir"
+            class="mt-6 w-full bg-primary px-6 py-4 font-display text-2xl uppercase text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Descargar / imprimir
+          </button>
+          <a
+            href="/piloto"
+            class="mt-4 block border border-border px-6 py-3 text-center font-mono text-xs uppercase tracking-widest transition-colors hover:bg-secondary"
+          >
+            Volver a mi panel
+          </a>
+        </div>
+
+        <div class="border border-border p-6 no-print">
+          <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            Recordatorio
+          </h2>
+          <ul class="mt-4 space-y-3 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            <li class="border-l-2 border-primary pl-4">
+              Presentá la licencia en la acreditación
+            </li>
+            <li class="border-l-2 border-primary pl-4">
+              Mostrá el identificador único en la acreditación
+            </li>
+            <li class="border-l-2 border-primary pl-4">
+              La licencia solo habilita la temporada 2027
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</PilotoShell>
+
+<style is:global>
+  @media print {
+    @page {
+      margin: 12mm;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .carnet {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+      box-shadow: none !important;
+      break-inside: avoid;
+    }
+
+    .carnet * {
+      color: #000000 !important;
+      border-color: #000000 !important;
+      background: transparent !important;
+    }
+
+    .carnet .bg-card {
+      background: #ffffff !important;
+    }
+
+    .carnet .text-primary {
+      color: #000000 !important;
+    }
+  }
+</style>
+
+<script>
+  import { obtenerPiloto, licenciaDe } from "../../lib/store";
+  import { sesionPiloto } from "../../components/piloto/sesion";
+  import { ETIQUETA_ESTADO_LICENCIA } from "../../lib/types";
+  import { escapar, formatoFecha } from "../../components/piloto/ui";
+
+  function texto(id: string, valor: string): void {
+    const destino = document.querySelector(`#${id}`);
+    if (destino) destino.textContent = valor;
+  }
+
+  function iniciar(): void {
+    const sesion = sesionPiloto();
+    if (!sesion?.pilotoId) return;
+
+    const piloto = obtenerPiloto(sesion.pilotoId);
+    const licencia = licenciaDe(sesion.pilotoId);
+
+    const aviso = document.querySelector<HTMLDivElement>("#aviso");
+    const bloque = document.querySelector<HTMLDivElement>("#licencia");
+
+    if (!piloto || !licencia || licencia.estado !== "activa") {
+      aviso?.classList.remove("hidden");
+      return;
+    }
+
+    texto("campo-id", piloto.id);
+    texto("campo-estado", ETIQUETA_ESTADO_LICENCIA[licencia.estado]);
+    texto("campo-nombre", piloto.nombre);
+    texto("campo-documento", piloto.documento);
+    texto("campo-categoria", licencia.categoria);
+    texto(
+      "campo-vigencia",
+      `Temporada 2027 · desde ${formatoFecha(licencia.solicitadaEn)}`,
+    );
+
+    bloque?.classList.remove("hidden");
+
+    document.querySelector("#imprimir")?.addEventListener("click", () => {
+      window.print();
+    });
+  }
+
+  iniciar();
+</script>
