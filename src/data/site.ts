@@ -4,10 +4,14 @@ import { generarIdUnico } from "../lib/id";
 export const nav = [
   { n: "01", label: "Calendario", href: "/calendario" },
   { n: "02", label: "Campeonatos", href: "/campeonatos" },
-  { n: "03", label: "Inscripciones", href: "/inscripciones" },
+  // Inscripciones: acceso público oculto temporalmente (a pedido del usuario).
+  // Se restaura descomentando la línea.
+  // { n: "03", label: "Inscripciones", href: "/inscripciones" },
   { n: "04", label: "Noticias", href: "/noticias" },
   { n: "05", label: "Escuelas", href: "/escuelas" },
-  { n: "06", label: "Contacto", href: "/contacto" },
+  // Contacto: acceso público oculto temporalmente (a pedido del usuario).
+  // Se restaura descomentando la línea.
+  // { n: "06", label: "Contacto", href: "/contacto" },
   { n: "07", label: "Verificar", href: "/verificar" },
 ];
 
