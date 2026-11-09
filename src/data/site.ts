@@ -403,6 +403,42 @@ export const reglamentos: Reglamento[] = [
 
 export const noticias: Noticia[] = [
   {
+    id: "n04",
+    fecha: "28 NOV 2026",
+    categoria: "Licencias",
+    titulo: "Consulta pública de licencias con escaneo de código QR",
+    resumen:
+      "Desde la home se puede verificar la autenticidad de un carné escaneando su código QR o escribiendo el número de licencia.",
+    publicada: true,
+  },
+  {
+    id: "n05",
+    fecha: "20 NOV 2026",
+    categoria: "Campeonato",
+    titulo: "Cerradas las inscripciones de la fecha inaugural de la temporada 2027",
+    resumen:
+      "La directiva habilitó las inscripciones de la primera ronda en los cuatro circuitos homologados del país.",
+    publicada: true,
+  },
+  {
+    id: "n06",
+    fecha: "12 NOV 2026",
+    categoria: "Escuelas",
+    titulo: "Se incorporan seis escuelas al programa de formación de pilotos",
+    resumen:
+      "Los clubes avalados amplían el programa de iniciación infantil para la temporada 2027, con nuevos cupos para menores de 7 años.",
+    publicada: true,
+  },
+  {
+    id: "n07",
+    fecha: "10 NOV 2026",
+    categoria: "Pistas",
+    titulo: "El Autódromo Sur homologa su recta principal",
+    resumen:
+      "La comisión técnica aprobó la ampliación de la recta a 180 metros y el reposicionamiento de los boxes.",
+    publicada: true,
+  },
+  {
     id: "n01",
     fecha: "02 NOV 2026",
     categoria: "Campeonato",
