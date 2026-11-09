@@ -6,7 +6,12 @@
 
 export type Rol = "directivo" | "piloto";
 
-export type EstadoLicencia = "sin_solicitud" | "en_validacion" | "activa" | "rechazada";
+export type EstadoLicencia =
+  | "sin_solicitud"
+  | "en_validacion"
+  | "activa"
+  | "rechazada"
+  | "suspendida";
 
 export interface Piloto {
   /** Identificador único de la federación, derivado del documento. */
@@ -37,6 +42,10 @@ export interface Licencia {
   fotoPreview?: string;
   validadaEn?: string;
   observacion?: string;
+  /** Fecha en la que empieza la vigencia de la licencia (ISO). */
+  vigenciaDesde?: string;
+  /** Fecha en la que termina la vigencia de la licencia (ISO). */
+  vigenciaHasta?: string;
 }
 
 export interface Inscripcion {
@@ -116,6 +125,7 @@ export const ETIQUETA_ESTADO_LICENCIA: Record<EstadoLicencia, string> = {
   en_validacion: "En validación",
   activa: "Activa",
   rechazada: "Rechazada",
+  suspendida: "Suspendida",
 };
 
 export const COLOR_ESTADO_LICENCIA: Record<EstadoLicencia, string> = {
@@ -123,4 +133,5 @@ export const COLOR_ESTADO_LICENCIA: Record<EstadoLicencia, string> = {
   en_validacion: "primary",
   activa: "primary",
   rechazada: "destructive",
+  suspendida: "destructive",
 };

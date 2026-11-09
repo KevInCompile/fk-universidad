@@ -1,3 +1,4 @@
+import { estadoPublicoLicencia } from "./licencia";
 import { beforeEach, describe, expect, it } from "vitest";
 import { buscarRondaPorCodigo, escribirEstado, estadoInicial, leerEstado } from "./store";
 import type { Estado } from "./types";
@@ -78,9 +79,9 @@ describe("store en el navegador", () => {
       fotoNombre: "foto.jpg",
     });
     escribirEstado(estado);
-    expect(leerEstado().licencias).toHaveLength(1);
+    expect(leerEstado().licencias).toHaveLength(4);
 
-    expect(estadoInicial().licencias).toHaveLength(0);
+    expect(estadoInicial().licencias).toHaveLength(3);
   });
 });
 
@@ -157,5 +158,23 @@ describe("cuota del almacenamiento del navegador", () => {
     expect(() => escribirEstado(estadoInicial())).toThrowError(
       /almacenamiento del navegador está lleno/i,
     );
+  });
+});
+
+describe("licencias de la semilla", () => {
+  it("cubre los tres estados públicos de la consulta de licencias", () => {
+    const licencias = estadoInicial().licencias;
+
+    expect(estadoPublicoLicencia(licencias.find((item) => item.id === "LIC-SEM01"))).toBe("vigente");
+    expect(estadoPublicoLicencia(licencias.find((item) => item.id === "LIC-SEM02"))).toBe("suspendida");
+    expect(estadoPublicoLicencia(licencias.find((item) => item.id === "LIC-SEM03"))).toBe("vencida");
+  });
+
+  it("cada licencia sembrada apunta a un piloto existente", () => {
+    const estado = estadoInicial();
+
+    for (const licencia of estado.licencias) {
+      expect(estado.pilotos.some((piloto) => piloto.id === licencia.pilotoId)).toBe(true);
+    }
   });
 });

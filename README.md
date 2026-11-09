@@ -15,6 +15,10 @@ administrativo para directiva y portal para pilotos.
   calendario de rondas, validar solicitudes de licencia y consultar el listado de
   personas inscritas por evento (`/admin/inscripciones`, con buscador y conteo por
   categoría).
+- **Consulta pública de licencias** (`/verificar`) — pantalla abierta al público para
+  verificar la autenticidad de una licencia: se escanea el QR del carné con la cámara
+  (o se escribe el número) y se ve nombre, fotografía, categoría y estado (vigente,
+  vencida o suspendida). No expone documento ni correo.
 - **Portal del piloto** (`/piloto`) — registro con identificador único ligado al
   documento de identidad y con la categoría en la que compite, estado y datos de la
   licencia, solicitud de licencia con documento y fotografía, inscripción a eventos por
@@ -31,6 +35,9 @@ administrativo para directiva y portal para pilotos.
   complejo homologado.
 - **Idioma**: registro neutro (usted) en toda la interfaz: "Seleccione", "Cargue",
   "Ingrese", "Guarde", "Descargue", "Revise", "Apruebe o rechace".
+- **Licencias**: al aprobarlas, la directiva fija la vigencia hasta el cierre de la
+  temporada; una licencia suspendida por la directiva sigue visible en la consulta
+  pública, pero con estado "Suspendida".
 - **Almacenamiento**: todo el estado vive en `localStorage` (~5 MB). Las fotografías se
   reducen a un thumbnail de 480 px antes de guardarse; si la cuota se llena, se
   descartan las previsualizaciones y se reintenta una vez antes de avisar por pantalla.
@@ -54,8 +61,9 @@ src/
   lib/id.ts             identificador único de piloto (derivado del documento)
   lib/store.ts          estado en localStorage + operaciones de dominio
   lib/guard.ts          guardas de sesión por rol
+  lib/licencia.ts       estado público de una licencia y código de verificación
   components/           header, footer, mapa y piezas de cada sección
-  pages/                home, stubs públicos, /login, /admin/**, /piloto/**
+  pages/                home, stubs públicos, /verificar, /login, /admin/**, /piloto/**
 ```
 
 La especificación del trabajo en curso vive en `odd/tasks/federacion-kartismo.md`.

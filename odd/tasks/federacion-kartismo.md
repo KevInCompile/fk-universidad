@@ -13,6 +13,7 @@ Prototipo Astro con datos en el navegador. Dos roles simulados: directiva y pilo
 - **S7** — "una vez esa licencia este activa poder descargarla como PDF desde el panel de su rol"
 - **S8** — "Quiero visualizar el listado de las personas que están inscritas por eventos." (rol de directiva)
 - **S9** — "Como piloto, quiero registrarme en la plataforma y clasificarme en mi categoría para realizar mis inscripciones a eventos."
+- **S10** — "Como público, quiero escanear el código de barras o ingresar el número de una licencia en la consulta pública y ver nombre, fotografía, categoría y estado (vigente, vencida o suspendida), para verificar su autenticidad."
 
 Decisiones tomadas por el usuario (2026-11-08):
 
@@ -46,6 +47,10 @@ Contexto previo (2026-11-08): "Vamos a crear un proyecto, por el momento crealo 
 | T18 | S8 | `src/pages/admin/inscripciones.astro` | Directiva: listado de personas inscritas por evento, con buscador | done |
 | T19 | S9 | `src/pages/piloto/registro.astro` | Registro de piloto con clasificación por categoría | done |
 | T20 | L7 | `src/pages/piloto/licencia.astro` | Corrección: la foto ya no revienta la cuota de localStorage y el error se muestra | done |
+| T21 | S10 | `src/lib/licencia.ts` | Modelo: estado público de licencia (vigente, vencida, suspendida) y código de verificación | done |
+| T22 | S10 | `src/pages/verificar.astro` | Consulta pública: ingreso del código y escaneo con la cámara | done |
+| T23 | S10 | `src/pages/admin/licencias.astro` | Directiva: suspender y reactivar una licencia | done |
+| T24 | S10 | `src/pages/piloto/licencia-activa.astro` | Carné con código de verificación y QR | done |
 
 Contrato compartido (lo escribe el orquestador, no los workers): `src/lib/types.ts`, `src/lib/store.ts`, `src/lib/seed.ts`, `src/data/site.ts`.
 
@@ -58,7 +63,10 @@ Contrato compartido (lo escribe el orquestador, no los workers): `src/lib/types.
 - **L5** — 2026-11-08 — El verificador independiente que pedía el plan de riesgo de `assess` fue cancelado por el usuario (no aportaba sobre lo ya cubierto por unit tests + E2E en navegador). La cobertura de revisión queda: 65 pruebas unitarias, E2E con Playwright y chequeo responsive de 13 rutas.
 - **L6** — 2026-11-08 — "Hay que agregar esta opcion con el rol de directivo:Quiero visualizar el listado de las personas que están inscritas por eventos." → S8 / T18.
 - **L7** — 2026-11-08 — "Tambien agrega un formulario de registro para piloto ya que tengo que completar esta historia de usuario:Como piloto, quiero registrarme en la plataforma y clasificarme en mi categoría para realizar mis inscripciones a eventos." → S9 / T19.
+- **L9** — 2026-11-08 — "Hay que agregar esta HU Como público, quiero escanear el código de barras o ingresar el número de una licencia en la consulta pública y ver nombre, fotografía, categoría y estado (vigente, vencida o suspendida), para verificar su autenticidad." → S10 / T21-T24.
 - **L8** — 2026-11-08 — "Tambien revisa que ya no me deja hacer otro proceso de licencia con otro piloto, le doy al boton enviar solicitud y no hace nada" → causa raíz: la fotografía completa se guardaba en base64 dentro de `localStorage` y reventaba la cuota (~5 MB); el error `QuotaExceededError` se tragaba y el botón no hacía nada. Corrección en T20.
+
+- **L10** — 2026-11-08 — Verificación de S10: `npm run build` (24 páginas, exit 0), `npx vitest run` (7 archivos, 88 pruebas, verde) y E2E en navegador real (44 comprobaciones, 0 fallos) cubriendo los tres estados públicos, el código desconocido, la consulta por enlace, la suspensión desde el panel y su reflejo en la consulta, y el QR del carné; chequeo responsive de 15 rutas (390 px) sin desbordes ni errores JS.
 
 ## Notas de implementación
 
@@ -70,4 +78,7 @@ Contrato compartido (lo escribe el orquestador, no los workers): `src/lib/types.
 - **T18 (listado de inscritos)**: `/admin/inscripciones` agrupa a los inscritos por evento con nombre, identificador, documento, correo, categoría y código de inscripción; incluye buscador por nombre, documento o identificador y el conteo por categoría. La semilla trae 5 inscripciones de ejemplo para que la pantalla tenga contenido desde el primer arranque.
 - **T19 (categoría en el registro)**: el alta de piloto ahora exige la categoría en la que compite (`Piloto.categoria`); el panel la muestra, y la solicitud de licencia y los formularios de inscripción la preseleccionan.
 - **T20 (cuota de localStorage)**: la previsualización de la fotografía se reduce a un thumbnail de 480 px (JPEG 0,72) antes de guardarse; `escribirEstado` descarta las previsualizaciones y reintenta una vez antes de fallar, y el error se muestra en pantalla en vez de tragarse.
+- **S10 (consulta pública de licencias)**: `/verificar` es pública (no pide sesión): acepta el número de licencia (`LIC-XXX`), el código completo (`FEDKART-LIC-LIC-XXX`) o un enlace `?codigo=...`, y escanea con la cámara cuando el navegador expone `BarcodeDetector` (Chromium); si no lo expone, avisa que se escriba el código. Muestra nombre, fotografía, categoría y estado (`vigente`, `vencida`, `suspendida`, más `en validación` y `rechazada`) sin exponer documento ni correo. La lógica de estado vive en `src/lib/licencia.ts`; el carné impreso lleva el código y su QR.
+- **Vigencia**: al aprobar una licencia la directiva fija `vigenciaDesde` (fecha de aprobación) y `vigenciaHasta` (31 de diciembre de la temporada); una licencia activa con vigencia vencida se muestra como `vencida` en la consulta pública.
+- **Suspensión**: la directiva puede suspender o reactivar una licencia desde `/admin/licencias`; la licencia suspendida sigue visible en la consulta pública con estado `Suspendida`.
 - **Deuda conocida**: la portada `/` conserva el enlace de navegación "05 Escuelas" al stub `/escuelas`; la grilla de temporada se movió a `/calendario` para no duplicar el calendario en la home.

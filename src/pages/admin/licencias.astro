@@ -55,8 +55,13 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
 
 <script>
   import { esc, exigirDirectivo, fechaLegible } from "../../components/admin/adminClient";
-  import { bandejaLicencias, decidirLicencia } from "../../components/admin/adminLogica";
-  import { leerEstado, validarLicencia } from "../../lib/store";
+  import {
+    bandejaLicencias,
+    cambiarEstadoLicencia,
+    decidirLicencia,
+  } from "../../components/admin/adminLogica";
+  import { cambiarEstadoLicencia as persistirEstadoLicencia, leerEstado, validarLicencia } from "../../lib/store";
+  import { ETIQUETA_ESTADO_LICENCIA } from "../../lib/types";
   import type { Licencia } from "../../lib/types";
 
   const sesion = exigirDirectivo();
@@ -206,8 +211,25 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
           <span class="font-mono text-[10px] uppercase tracking-widest ${
             activa ? "text-primary" : "text-destructive"
           }">
-            ${activa ? "Activa" : "Rechazada"} · ${esc(fechaLegible(licencia.validadaEn ?? ""))}
+            ${esc(ETIQUETA_ESTADO_LICENCIA[licencia.estado])} · ${esc(
+              fechaLegible(licencia.validadaEn ?? ""),
+            )}
           </span>
+          ${
+            licencia.estado === "activa" || licencia.estado === "suspendida"
+              ? `<button type="button" data-estado-licencia="${esc(
+                  licencia.id,
+                )}" data-accion="${
+                  licencia.estado === "activa" ? "suspender" : "reactivar"
+                }" class="w-fit border px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors ${
+                  licencia.estado === "activa"
+                    ? "border-destructive text-destructive hover:bg-destructive hover:text-background"
+                    : "border-foreground hover:bg-foreground hover:text-background"
+                }">
+                ${licencia.estado === "activa" ? "Suspender" : "Reactivar"}
+              </button>`
+              : ""
+          }
         </article>
       `;
               })
@@ -247,6 +269,38 @@ import AdminLayout from "../../components/admin/AdminLayout.astro";
     );
     pintar();
   }
+
+  historico?.addEventListener("click", (evento) => {
+    const objetivo = evento.target as HTMLElement | null;
+    const boton = objetivo?.closest("button[data-estado-licencia]") as HTMLElement | null;
+    if (!boton) return;
+
+    const licenciaId = boton.getAttribute("data-estado-licencia") ?? "";
+    const accion = boton.getAttribute("data-accion") === "reactivar" ? "reactivar" : "suspender";
+
+    const resultado = cambiarEstadoLicencia(leerEstado(), licenciaId, accion);
+    if (!resultado.ok) {
+      mostrarMensaje(resultado.error, false);
+      return;
+    }
+
+    const guardada = persistirEstadoLicencia(
+      licenciaId,
+      accion === "suspender" ? "suspendida" : "activa",
+    );
+    if (!guardada) {
+      mostrarMensaje("No se encontró la licencia", false);
+      return;
+    }
+
+    mostrarMensaje(
+      accion === "suspender"
+        ? `Licencia ${licenciaId} suspendida`
+        : `Licencia ${licenciaId} reactivada`,
+      true,
+    );
+    pintar();
+  });
 
   bandeja?.addEventListener("click", (evento) => {
     const objetivo = evento.target as HTMLElement | null;

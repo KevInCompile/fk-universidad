@@ -8,6 +8,7 @@ export const nav = [
   { n: "04", label: "Noticias", href: "/noticias" },
   { n: "05", label: "Escuelas", href: "/escuelas" },
   { n: "06", label: "Contacto", href: "/contacto" },
+  { n: "07", label: "Verificar", href: "/verificar" },
 ];
 
 export const temporada = "2027";
@@ -438,6 +439,7 @@ export const pilotosSemilla: Piloto[] = [
     email: "valentina.rios@correo.co",
     telefono: "+57 310 555 0142",
     fechaNacimiento: "2008-04-12",
+    categoria: "Senior",
     creadoEn: "2026-10-02T09:00:00.000Z",
   },
   {
@@ -447,6 +449,7 @@ export const pilotosSemilla: Piloto[] = [
     email: "mateo.salas@correo.co",
     telefono: "+57 320 555 0188",
     fechaNacimiento: "2013-09-30",
+    categoria: "Aficionado",
     creadoEn: "2026-10-05T14:30:00.000Z",
   },
   {
@@ -456,7 +459,18 @@ export const pilotosSemilla: Piloto[] = [
     email: "juliana.ortiz@correo.co",
     telefono: "+57 301 555 0175",
     fechaNacimiento: "1996-02-21",
+    categoria: "Senior",
     creadoEn: "2026-10-11T11:15:00.000Z",
+  },
+  {
+    id: "",
+    documento: "10556677889",
+    nombre: "Samuel Zapata",
+    email: "samuel.zapata@correo.co",
+    telefono: "+57 316 555 0199",
+    fechaNacimiento: "2016-03-08",
+    categoria: "Infantil",
+    creadoEn: "2026-10-15T08:40:00.000Z",
   },
 ].map((piloto) => ({
   ...piloto,

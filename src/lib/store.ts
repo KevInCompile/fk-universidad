@@ -42,12 +42,84 @@ function inscripcionesSemilla(): Inscripcion[] {
   }));
 }
 
+/**
+ * Fotografía de ejemplo para las licencias sembradas: una silueta en SVG, no
+ * una imagen real. La consulta pública de /verificar muestra esta previsualización.
+ */
+function avatarSemilla(): string {
+  const svg = [
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" width="240" height="300">',
+    '<rect width="240" height="300" fill="#18181b"/>',
+    '<circle cx="120" cy="108" r="52" fill="#3f3f46"/>',
+    '<path d="M36 300c0-46 38-74 84-74s84 28 84 74z" fill="#3f3f46"/>',
+    "</svg>",
+  ].join("");
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Licencias de ejemplo para la consulta pública: una vigente, una suspendida y
+ * una vencida, para que /verificar muestre los tres estados desde el primer
+ * arranque.
+ */
+function licenciasSemilla(): Licencia[] {
+  const [valentina, mateo, , samuel] = pilotosSemilla;
+  const foto = avatarSemilla();
+
+  return [
+    {
+      id: "LIC-SEM01",
+      pilotoId: valentina?.id ?? "",
+      categoria: valentina?.categoria ?? "Senior",
+      estado: "activa",
+      solicitadaEn: "2026-10-02T09:30:00.000Z",
+      documentoNombre: "cedula-valentina.pdf",
+      documentoTipo: "application/pdf",
+      fotoNombre: "valentina.jpg",
+      fotoPreview: foto,
+      validadaEn: "2026-10-05T12:00:00.000Z",
+      vigenciaDesde: "2026-10-05T12:00:00.000Z",
+      vigenciaHasta: `${temporada}-12-31T23:59:59.000Z`,
+    },
+    {
+      id: "LIC-SEM02",
+      pilotoId: mateo?.id ?? "",
+      categoria: mateo?.categoria ?? "Aficionado",
+      estado: "suspendida",
+      solicitadaEn: "2026-10-05T15:00:00.000Z",
+      documentoNombre: "cedula-mateo.pdf",
+      documentoTipo: "application/pdf",
+      fotoNombre: "mateo.jpg",
+      fotoPreview: foto,
+      validadaEn: "2026-10-07T10:00:00.000Z",
+      observacion: "Suspendida por la directiva",
+      vigenciaDesde: "2026-10-07T10:00:00.000Z",
+      vigenciaHasta: `${temporada}-12-31T23:59:59.000Z`,
+    },
+    {
+      id: "LIC-SEM03",
+      pilotoId: samuel?.id ?? "",
+      categoria: samuel?.categoria ?? "Infantil",
+      estado: "activa",
+      solicitadaEn: "2025-11-04T09:00:00.000Z",
+      documentoNombre: "cedula-samuel.pdf",
+      documentoTipo: "application/pdf",
+      fotoNombre: "samuel.jpg",
+      fotoPreview: foto,
+      validadaEn: "2025-11-06T09:00:00.000Z",
+      vigenciaDesde: "2025-11-06T09:00:00.000Z",
+      vigenciaHasta: "2026-06-30T23:59:59.000Z",
+    },
+  ];
+}
+
 export function estadoInicial(): Estado {
   return {
     noticias: structuredClone(noticias),
     rondas: structuredClone(rondas),
     pilotos: structuredClone(pilotosSemilla),
-    licencias: [],
+    licencias: licenciasSemilla(),
     inscripciones: inscripcionesSemilla(),
   };
 }
@@ -198,10 +270,37 @@ export function validarLicencia(
   const licencia = estado.licencias.find((item) => item.id === licenciaId);
   if (!licencia) return undefined;
 
+  const ahora = new Date().toISOString();
   licencia.estado = decision === "aprobada" ? "activa" : "rechazada";
-  licencia.validadaEn = new Date().toISOString();
+  licencia.validadaEn = ahora;
   licencia.observacion = observacion;
+
+  if (decision === "aprobada") {
+    // La licencia habilita al piloto hasta el cierre de la temporada: después
+    // aparece como vencida en la consulta pública.
+    licencia.vigenciaDesde = ahora;
+    licencia.vigenciaHasta = `${temporada}-12-31T23:59:59.000Z`;
+  }
+
   escribirEstado(estado);
+  return licencia;
+}
+
+/**
+ * Cambia el estado de una licencia ya resuelta: la directiva puede suspenderla
+ * (deja de habilitar al piloto) o reactivarla.
+ */
+export function cambiarEstadoLicencia(
+  licenciaId: string,
+  estado: "suspendida" | "activa",
+): Licencia | undefined {
+  const estadoActual = leerEstado();
+  const licencia = estadoActual.licencias.find((item) => item.id === licenciaId);
+  if (!licencia) return undefined;
+
+  licencia.estado = estado;
+  licencia.observacion = estado === "suspendida" ? "Suspendida por la directiva" : undefined;
+  escribirEstado(estadoActual);
   return licencia;
 }
 

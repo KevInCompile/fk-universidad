@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   bandejaLicencias,
+  cambiarEstadoLicencia,
   decidirLicencia,
   listadoInscripciones,
   resumenPanel,
@@ -391,5 +392,43 @@ describe("listado de inscritos por evento", () => {
       { categoria: "Infantil", total: 1 },
       { categoria: "Senior", total: 1 },
     ]);
+  });
+});
+
+describe("suspensión y reactivación de una licencia", () => {
+  it("suspende una licencia activa", () => {
+    const estado = estadoBase();
+    estado.licencias[0].estado = "activa";
+    const resultado = cambiarEstadoLicencia(estado, "LIC-1", "suspender");
+    expect(resultado.ok).toBe(true);
+    expect(resultado.licencia?.estado).toBe("suspendida");
+  });
+
+  it("no suspende una licencia que ya está suspendida", () => {
+    const estado = estadoBase();
+    estado.licencias[0].estado = "suspendida";
+    const resultado = cambiarEstadoLicencia(estado, "LIC-1", "suspender");
+    expect(resultado.ok).toBe(false);
+    expect(resultado.error).toBeTruthy();
+  });
+
+  it("reactiva una licencia suspendida", () => {
+    const estado = estadoBase();
+    estado.licencias[0].estado = "suspendida";
+    const resultado = cambiarEstadoLicencia(estado, "LIC-1", "reactivar");
+    expect(resultado.ok).toBe(true);
+    expect(resultado.licencia?.estado).toBe("activa");
+  });
+
+  it("no reactiva una licencia activa", () => {
+    const estado = estadoBase();
+    estado.licencias[0].estado = "activa";
+    const resultado = cambiarEstadoLicencia(estado, "LIC-1", "reactivar");
+    expect(resultado.ok).toBe(false);
+  });
+
+  it("avisa cuando la licencia no existe", () => {
+    const resultado = cambiarEstadoLicencia(estadoBase(), "LIC-99", "suspender");
+    expect(resultado.ok).toBe(false);
   });
 });

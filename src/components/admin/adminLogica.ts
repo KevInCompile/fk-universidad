@@ -72,6 +72,9 @@ export interface ListadoInscripciones {
   categorias: ConteoCategoria[];
 }
 
+/** Acciones que la directiva puede aplicar sobre una licencia resuelta. */
+export type AccionLicencia = "suspender" | "reactivar";
+
 export interface ResultadoDecision {
   ok: boolean;
   error: string;
@@ -206,4 +209,33 @@ export function listadoInscripciones(estado: Estado): ListadoInscripciones {
   );
 
   return { eventos, totalInscritos, categorias };
+}
+
+/**
+ * Reglas para suspender o reactivar una licencia.
+ *
+ * Solo se suspende una licencia activa y solo se reactiva una suspendida: el
+ * estado público de /verificar depende de esta transición.
+ */
+export function cambiarEstadoLicencia(
+  estado: Estado,
+  licenciaId: string,
+  accion: AccionLicencia,
+): ResultadoDecision {
+  const licencia = estado.licencias.find((item) => item.id === licenciaId);
+  if (!licencia) {
+    return { ok: false, error: "No se encontró la licencia" };
+  }
+
+  if (accion === "suspender") {
+    if (licencia.estado !== "activa") {
+      return { ok: false, error: "Solo se puede suspender una licencia activa" };
+    }
+    return { ok: true, error: "", licencia: { ...licencia, estado: "suspendida" } };
+  }
+
+  if (licencia.estado !== "suspendida") {
+    return { ok: false, error: "Solo se puede reactivar una licencia suspendida" };
+  }
+  return { ok: true, error: "", licencia: { ...licencia, estado: "activa" } };
 }

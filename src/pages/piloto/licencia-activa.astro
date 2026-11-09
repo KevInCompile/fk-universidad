@@ -90,7 +90,24 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
           </div>
         </div>
 
-        <p class="mt-8 font-mono text-[10px] tracking-wide text-muted-foreground">
+        <div class="mt-8 flex flex-wrap items-end justify-between gap-6 border-t-2 border-foreground pt-6">
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Código de verificación
+            </p>
+            <p id="campo-codigo" class="mt-2 font-mono text-lg tracking-wide"></p>
+            <p class="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground">
+              Verifique la autenticidad en /verificar
+            </p>
+          </div>
+          <div
+            id="qr-licencia"
+            class="flex h-28 w-28 items-center justify-center border-2 border-foreground bg-background p-1"
+          >
+          </div>
+        </div>
+
+        <p class="mt-6 font-mono text-[10px] tracking-wide text-muted-foreground">
           Documento de identidad vigente y licencia de piloto autorizada para
           participar en las rondas del campeonato nacional 2027.
         </p>
@@ -182,9 +199,11 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
 </style>
 
 <script>
+  import QRCode from "qrcode";
   import { obtenerPiloto, licenciaDe } from "../../lib/store";
   import { sesionPiloto } from "../../components/piloto/sesion";
   import { ETIQUETA_ESTADO_LICENCIA } from "../../lib/types";
+  import { codigoVerificacionLicencia } from "../../lib/licencia";
   import { escapar, formatoFecha } from "../../components/piloto/ui";
 
   function texto(id: string, valor: string): void {
@@ -214,8 +233,22 @@ import PilotoShell from "../../components/piloto/PilotoShell.astro";
     texto("campo-categoria", licencia.categoria);
     texto(
       "campo-vigencia",
-      `Temporada 2027 · desde ${formatoFecha(licencia.solicitadaEn)}`,
+      `Temporada 2027 · desde ${formatoFecha(licencia.vigenciaDesde ?? licencia.solicitadaEn)}`,
     );
+
+    const codigo = codigoVerificacionLicencia(licencia);
+    texto("campo-codigo", codigo);
+
+    const destinoQr = document.querySelector("#qr-licencia");
+    if (destinoQr) {
+      QRCode.toString(codigo, { type: "svg", margin: 0, width: 220 })
+        .then((svg) => {
+          destinoQr.innerHTML = svg;
+        })
+        .catch(() => {
+          destinoQr.textContent = codigo;
+        });
+    }
 
     bloque?.classList.remove("hidden");
 

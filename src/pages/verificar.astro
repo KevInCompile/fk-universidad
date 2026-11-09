@@ -1,0 +1,397 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base
+  title="Verificación de licencias — Federación de Kartismo"
+  description="Consulta pública para verificar la autenticidad de una licencia de piloto de la Federación de Kartismo."
+>
+  <Header />
+
+  <main>
+    <section class="grain relative overflow-hidden border-b">
+      <div
+        class="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent"
+      >
+      </div>
+
+      <div class="relative mx-auto max-w-7xl px-5 pb-12 pt-24">
+        <p class="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+          Consulta pública
+        </p>
+        <h1 class="font-display text-[14vw] uppercase leading-[0.9] md:text-8xl">
+          Verificar <span class="text-primary">licencia</span>
+        </h1>
+        <p class="mt-6 max-w-2xl text-muted-foreground">
+          Escanee el código QR del carné o escriba el número de licencia para
+          comprobar quién es el titular, su categoría y si la licencia está
+          vigente, vencida o suspendida.
+        </p>
+      </div>
+    </section>
+
+    <section class="mx-auto max-w-4xl px-5 py-16">
+      <form id="form-verificar" class="border border-border bg-card p-6 md:p-8" novalidate>
+        <label for="codigo" class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          Número o código de licencia
+        </label>
+        <div class="mt-3 flex flex-col gap-3 sm:flex-row">
+          <input
+            type="text"
+            id="codigo"
+            name="codigo"
+            placeholder="LIC-ABC123 o FEDKART-LIC-LIC-ABC123"
+            autocomplete="off"
+            class="w-full border border-border bg-background px-4 py-3 font-mono text-sm outline-none transition-colors focus:border-primary"
+          />
+          <button
+            type="submit"
+            class="bg-primary px-8 py-3 font-mono text-xs uppercase tracking-widest text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Verificar
+          </button>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            id="escanear"
+            class="border border-foreground px-5 py-2.5 font-mono text-xs uppercase tracking-widest transition-colors hover:bg-foreground hover:text-background"
+          >
+            Escanear con la cámara
+          </button>
+          <p id="soporte-escaner" class="font-mono text-[10px] tracking-wide text-muted-foreground">
+          </p>
+        </div>
+
+        <div id="camara" class="mt-4 hidden border border-border p-4">
+          <video id="video" class="w-full border border-border" playsinline muted></video>
+          <button
+            type="button"
+            id="cancelar-escaner"
+            class="mt-3 border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-colors hover:bg-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+
+        <p
+          id="error"
+          class="mt-4 hidden border border-destructive bg-destructive/10 px-4 py-3 font-mono text-xs tracking-wide text-destructive"
+          role="alert"
+        >
+        </p>
+      </form>
+
+      <div id="resultado" class="mt-8 hidden">
+        <article class="border-2 border-foreground bg-card p-6 md:p-8">
+          <div class="flex flex-wrap items-start justify-between gap-6 border-b border-border pb-6">
+            <div>
+              <p class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                Licencia de piloto
+              </p>
+              <h2 id="resultado-nombre" class="mt-2 font-display text-5xl uppercase leading-none">
+              </h2>
+              <p id="resultado-identificador" class="mt-3 font-mono text-sm tracking-wide text-primary">
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Estado
+              </p>
+              <p
+                id="resultado-estado"
+                class="mt-2 inline-block border px-4 py-2 font-display text-3xl uppercase"
+              >
+              </p>
+              <p id="resultado-detalle" class="mt-3 max-w-xs font-mono text-[10px] tracking-wide text-muted-foreground">
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-6 md:grid-cols-[160px_1fr]">
+            <div>
+              <img
+                id="resultado-foto"
+                alt="Fotografía del titular de la licencia"
+                class="hidden w-full border border-border object-cover"
+              />
+              <p
+                id="resultado-sin-foto"
+                class="border border-border px-3 py-6 text-center font-mono text-[10px] tracking-wide text-muted-foreground"
+              >
+                Sin fotografía registrada
+              </p>
+            </div>
+
+            <dl class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <dt class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Categoría
+                </dt>
+                <dd id="resultado-categoria" class="mt-1 text-xl"></dd>
+              </div>
+              <div>
+                <dt class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Vigencia
+                </dt>
+                <dd id="resultado-vigencia" class="mt-1 text-xl"></dd>
+              </div>
+              <div class="sm:col-span-2">
+                <dt class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                  Titular
+                </dt>
+                <dd id="resultado-piloto" class="mt-1 text-xl"></dd>
+              </div>
+            </dl>
+          </div>
+        </article>
+      </div>
+
+      <p
+        id="vacio"
+        class="mt-8 border border-border bg-card p-6 font-mono text-xs tracking-wide text-muted-foreground"
+      >
+        Escriba o escanee un código de licencia para consultar su autenticidad.
+      </p>
+
+      <p class="mt-6 font-mono text-[10px] tracking-wide text-muted-foreground">
+        La consulta muestra únicamente los datos públicos de la licencia: no se
+        informa el documento de identidad ni el correo del titular. En este
+        prototipo los datos viven en el navegador donde se tramitó la licencia.
+      </p>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import { leerEstado } from "../lib/store";
+  import {
+    DETALLE_ESTADO_PUBLICO,
+    ETIQUETA_ESTADO_PUBLICO,
+    codigoVerificacionLicencia,
+    estadoPublicoLicencia,
+    normalizarCodigoLicencia,
+  } from "../lib/licencia";
+
+  const form = document.querySelector<HTMLFormElement>("#form-verificar");
+  const campoCodigo = document.querySelector<HTMLInputElement>("#codigo");
+  const error = document.querySelector<HTMLParagraphElement>("#error");
+  const resultado = document.querySelector<HTMLDivElement>("#resultado");
+  const vacio = document.querySelector<HTMLParagraphElement>("#vacio");
+
+  const nombre = document.querySelector<HTMLHeadingElement>("#resultado-nombre");
+  const identificador = document.querySelector<HTMLParagraphElement>("#resultado-identificador");
+  const estado = document.querySelector<HTMLParagraphElement>("#resultado-estado");
+  const detalle = document.querySelector<HTMLParagraphElement>("#resultado-detalle");
+  const categoria = document.querySelector<HTMLElement>("#resultado-categoria");
+  const vigencia = document.querySelector<HTMLElement>("#resultado-vigencia");
+  const titular = document.querySelector<HTMLElement>("#resultado-piloto");
+  const foto = document.querySelector<HTMLImageElement>("#resultado-foto");
+  const sinFoto = document.querySelector<HTMLParagraphElement>("#resultado-sin-foto");
+
+  function texto(destino: HTMLElement | null, valor: string): void {
+    if (destino) destino.textContent = valor;
+  }
+
+  function mostrarError(mensaje: string): void {
+    if (!error) return;
+    error.textContent = mensaje;
+    error.classList.remove("hidden");
+  }
+
+  function limpiarError(): void {
+    if (!error) return;
+    error.textContent = "";
+    error.classList.add("hidden");
+  }
+
+  function formatoFecha(iso?: string): string {
+    if (!iso) return "—";
+    const fecha = new Date(iso);
+    if (Number.isNaN(fecha.getTime())) return "—";
+    return fecha.toLocaleDateString("es-CO", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function claseEstado(estadoPublico: string): string {
+    if (estadoPublico === "vigente") return "border-primary text-primary";
+    if (estadoPublico === "en_validacion") return "border-border text-muted-foreground";
+    return "border-destructive text-destructive";
+  }
+
+  function consultar(codigoIngresado: string): void {
+    limpiarError();
+
+    const codigo = normalizarCodigoLicencia(codigoIngresado);
+    if (!codigo) {
+      mostrarError("Escriba el número o el código de la licencia.");
+      return;
+    }
+
+    const estadoActual = leerEstado();
+    const licencia = estadoActual.licencias.find(
+      (item) => normalizarCodigoLicencia(item.id) === codigo,
+    );
+
+    const piloto = licencia
+      ? estadoActual.pilotos.find((item) => item.id === licencia.pilotoId)
+      : undefined;
+
+    const estadoPublico = estadoPublicoLicencia(licencia);
+
+    if (!licencia) {
+      resultado?.classList.add("hidden");
+      vacio?.classList.remove("hidden");
+      texto(vacio, "No encontramos ninguna licencia con ese código.");
+      return;
+    }
+
+    texto(nombre, piloto?.nombre ?? "Titular no disponible");
+    texto(identificador, codigoVerificacionLicencia(licencia));
+    texto(estado, ETIQUETA_ESTADO_PUBLICO[estadoPublico]);
+    texto(detalle, DETALLE_ESTADO_PUBLICO[estadoPublico]);
+    texto(categoria, licencia.categoria);
+    texto(
+      vigencia,
+      licencia.vigenciaHasta
+        ? `${formatoFecha(licencia.vigenciaDesde)} — ${formatoFecha(licencia.vigenciaHasta)}`
+        : "Temporada 2027",
+    );
+    texto(titular, piloto ? `${piloto.nombre} · ${piloto.id}` : "—");
+
+    if (estado) {
+      estado.className = `mt-2 inline-block border px-4 py-2 font-display text-3xl uppercase ${claseEstado(
+        estadoPublico,
+      )}`;
+    }
+
+    if (foto) {
+      if (licencia.fotoPreview) {
+        foto.src = licencia.fotoPreview;
+        foto.classList.remove("hidden");
+        sinFoto?.classList.add("hidden");
+      } else {
+        foto.removeAttribute("src");
+        foto.classList.add("hidden");
+        sinFoto?.classList.remove("hidden");
+      }
+    }
+
+    vacio?.classList.add("hidden");
+    resultado?.classList.remove("hidden");
+  }
+
+  form?.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+    consultar(campoCodigo?.value ?? "");
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Escaneo con la cámara (BarcodeDetector, disponible en Chromium)    */
+  /* ------------------------------------------------------------------ */
+
+  const botonEscanear = document.querySelector<HTMLButtonElement>("#escanear");
+  const botonCancelar = document.querySelector<HTMLButtonElement>("#cancelar-escaner");
+  const bloqueCamara = document.querySelector<HTMLDivElement>("#camara");
+  const video = document.querySelector<HTMLVideoElement>("#video");
+  const soporte = document.querySelector<HTMLParagraphElement>("#soporte-escaner");
+
+  type DetectorBarcode = { detect: (fuente: CanvasImageSource) => Promise<{ rawValue: string }[]> };
+  type ConstructorDetector = new (opciones: { formats: string[] }) => DetectorBarcode;
+
+  const ventana = window as unknown as {
+    BarcodeDetector?: ConstructorDetector;
+    isSecureContext?: boolean;
+  };
+
+  let flujo: MediaStream | null = null;
+  let detector: DetectorBarcode | null = null;
+  let temporizador = 0;
+
+  function detener(): void {
+    window.clearTimeout(temporizador);
+    flujo?.getTracks().forEach((pista) => pista.stop());
+    flujo = null;
+    detector = null;
+    bloqueCamara?.classList.add("hidden");
+    if (video) video.srcObject = null;
+  }
+
+  async function escanear(): Promise<void> {
+    limpiarError();
+
+    if (!ventana.BarcodeDetector) {
+      mostrarError(
+        "Este navegador no permite escanear códigos con la cámara. Escriba el código a mano.",
+      );
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      mostrarError("Este dispositivo no permite usar la cámara. Escriba el código a mano.");
+      return;
+    }
+
+    try {
+      detector = new ventana.BarcodeDetector({
+        formats: ["qr_code", "code_128", "code_39", "ean_13", "data_matrix"],
+      });
+      flujo = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+    } catch {
+      mostrarError("No se pudo acceder a la cámara. Escriba el código a mano.");
+      return;
+    }
+
+    bloqueCamara?.classList.remove("hidden");
+    if (video) {
+      video.srcObject = flujo;
+      await video.play();
+    }
+
+    const buscar = async (): Promise<void> => {
+      if (!detector || !video) return;
+      try {
+        const codigos = await detector.detect(video);
+        const valor = codigos[0]?.rawValue;
+        if (valor) {
+          if (campoCodigo) campoCodigo.value = valor.trim();
+          detener();
+          consultar(valor);
+          return;
+        }
+      } catch {
+        // Se ignora: el siguiente ciclo vuelve a intentar.
+      }
+      temporizador = window.setTimeout(() => void buscar(), 400);
+    };
+
+    void buscar();
+  }
+
+  if (soporte) {
+    soporte.textContent = ventana.BarcodeDetector
+      ? "Escaneo con la cámara disponible en este navegador."
+      : "Este navegador no permite escanear con la cámara: escriba el código a mano.";
+  }
+
+  botonEscanear?.addEventListener("click", () => void escanear());
+  botonCancelar?.addEventListener("click", detener);
+
+  // Consulta directa por enlace: /verificar?codigo=LIC-ABC123
+  const parametros = new URLSearchParams(window.location.search);
+  const codigoInicial = parametros.get("codigo");
+  if (codigoInicial) {
+    if (campoCodigo) campoCodigo.value = codigoInicial;
+    consultar(codigoInicial);
+  }
+</script>
