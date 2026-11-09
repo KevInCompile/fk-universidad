@@ -10,7 +10,9 @@ import type { Estado, Inscripcion, Licencia, Noticia, Piloto, Ronda, Sesion } fr
 import { generarIdUnico } from "./id";
 import { noticias, pilotosSemilla, rounds as rondas, temporada } from "../data/site";
 
-const CLAVE_ESTADO = "fed-kartismo:estado:v1";
+// v2: la semilla de noticias creció (3 -> 7). Cambiar la clave reinicia el estado
+// local del prototipo para que quien vuelva al sitio vea la siembra vigente.
+const CLAVE_ESTADO = "fed-kartismo:estado:v2";
 const CLAVE_SESION = "fed-kartismo:sesion:v1";
 
 function navegador(): boolean {

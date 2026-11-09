@@ -207,7 +207,7 @@ describe("utilidades de presentación", () => {
 });
 
 function leerRondas() {
-  const crudo = almacen.getItem("fed-kartismo:estado:v1");
+  const crudo = almacen.getItem("fed-kartismo:estado:v2");
   const estado = crudo ? JSON.parse(crudo) : { rondas: [] };
   return (estado.rondas as { id: string; codigoQr: string }[]).filter(
     (ronda) => Boolean(ronda.codigoQr),

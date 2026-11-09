@@ -48,13 +48,6 @@ import { htmlListaNoticias, noticiasPublicadas } from "../components/home/home-d
         set:html={htmlListaNoticias(noticiasPublicadas(noticias))}
       >
       </ul>
-
-      <p
-        id="noticias-vacio"
-        class="hidden font-mono text-xs tracking-wide text-muted-foreground"
-      >
-        No hay noticias publicadas por el momento.
-      </p>
     </section>
   </main>
 
@@ -68,8 +61,6 @@ import { htmlListaNoticias, noticiasPublicadas } from "../components/home/home-d
   const lista = document.getElementById("noticias-lista");
 
   if (lista) {
-    const publicadas = noticiasPublicadas(leerEstado().noticias);
-    lista.innerHTML = htmlListaNoticias(publicadas);
-    lista.classList.toggle("hidden", publicadas.length === 0);
+    lista.innerHTML = htmlListaNoticias(noticiasPublicadas(leerEstado().noticias));
   }
 </script>
