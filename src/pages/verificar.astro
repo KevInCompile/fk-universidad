@@ -35,14 +35,14 @@ import Footer from "../components/Footer.astro";
     <section class="mx-auto max-w-4xl px-5 py-16">
       <form id="form-verificar" class="border border-border bg-card p-6 md:p-8" novalidate>
         <label for="codigo" class="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          Número o código de licencia
+          Número de licencia o identificador del piloto
         </label>
         <div class="mt-3 flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
             id="codigo"
             name="codigo"
-            placeholder="LIC-ABC123 o FEDKART-LIC-LIC-ABC123"
+            placeholder="LIC-SEM01 o FK-2027-KHT6C4"
             autocomplete="off"
             class="w-full border border-border bg-background px-4 py-3 font-mono text-sm outline-none transition-colors focus:border-primary"
           />
@@ -77,6 +77,13 @@ import Footer from "../components/Footer.astro";
           </button>
         </div>
 
+        <p class="mt-4 border border-border bg-background px-4 py-3 font-mono text-[10px] leading-relaxed tracking-wide text-muted-foreground">
+          Códigos de prueba del prototipo: <strong>LIC-SEM01</strong> (licencia
+          vigente), <strong>LIC-SEM02</strong> (suspendida),
+          <strong>LIC-SEM03</strong> (vencida) y el identificador del piloto
+          <strong>FK-2027-KHT6C4</strong> (Valentina Ríos).
+        </p>
+
         <p
           id="error"
           class="mt-4 hidden border border-destructive bg-destructive/10 px-4 py-3 font-mono text-xs tracking-wide text-destructive"
@@ -96,6 +103,11 @@ import Footer from "../components/Footer.astro";
               </h2>
               <p id="resultado-identificador" class="mt-3 font-mono text-sm tracking-wide text-primary">
               </p>
+            <p
+              id="resultado-origen"
+              class="mt-2 font-mono text-[10px] tracking-wide text-muted-foreground"
+            >
+            </p>
             </div>
             <div class="text-right">
               <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -173,6 +185,7 @@ import Footer from "../components/Footer.astro";
   import {
     DETALLE_ESTADO_PUBLICO,
     ETIQUETA_ESTADO_PUBLICO,
+    buscarLicenciaPorConsulta,
     codigoVerificacionLicencia,
     estadoPublicoLicencia,
     normalizarCodigoLicencia,
@@ -191,6 +204,7 @@ import Footer from "../components/Footer.astro";
   const categoria = document.querySelector<HTMLElement>("#resultado-categoria");
   const vigencia = document.querySelector<HTMLElement>("#resultado-vigencia");
   const titular = document.querySelector<HTMLElement>("#resultado-piloto");
+  const origen = document.querySelector<HTMLElement>("#resultado-origen");
   const foto = document.querySelector<HTMLImageElement>("#resultado-foto");
   const sinFoto = document.querySelector<HTMLParagraphElement>("#resultado-sin-foto");
 
@@ -236,14 +250,10 @@ import Footer from "../components/Footer.astro";
       return;
     }
 
-    const estadoActual = leerEstado();
-    const licencia = estadoActual.licencias.find(
-      (item) => normalizarCodigoLicencia(item.id) === codigo,
-    );
-
-    const piloto = licencia
-      ? estadoActual.pilotos.find((item) => item.id === licencia.pilotoId)
-      : undefined;
+    // Acepta el número de licencia o el identificador único del piloto.
+    const encontrado = buscarLicenciaPorConsulta(leerEstado(), codigo);
+    const licencia = encontrado?.licencia;
+    const piloto = encontrado?.piloto;
 
     const estadoPublico = estadoPublicoLicencia(licencia);
 
@@ -255,7 +265,12 @@ import Footer from "../components/Footer.astro";
     }
 
     texto(nombre, piloto?.nombre ?? "Titular no disponible");
-    texto(identificador, codigoVerificacionLicencia(licencia));
+    texto(
+      identificador,
+      encontrado?.modo === "piloto"
+        ? `${licencia.id} · ${codigoVerificacionLicencia(licencia)}`
+        : codigoVerificacionLicencia(licencia),
+    );
     texto(estado, ETIQUETA_ESTADO_PUBLICO[estadoPublico]);
     texto(detalle, DETALLE_ESTADO_PUBLICO[estadoPublico]);
     texto(categoria, licencia.categoria);
@@ -266,6 +281,12 @@ import Footer from "../components/Footer.astro";
         : "Temporada 2027",
     );
     texto(titular, piloto ? `${piloto.nombre} · ${piloto.id}` : "—");
+    texto(
+      origen,
+      encontrado?.modo === "piloto"
+        ? "Licencia encontrada por el identificador único del piloto"
+        : "Licencia encontrada por su número de licencia",
+    );
 
     if (estado) {
       estado.className = `mt-2 inline-block border px-4 py-2 font-display text-3xl uppercase ${claseEstado(

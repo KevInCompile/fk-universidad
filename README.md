@@ -3,6 +3,15 @@
 Prototipo web (Astro + Tailwind v4) de la federación de kartismo: home pública, panel
 administrativo para directiva y portal para pilotos.
 
+## Alcance actual
+
+Prototipo del trabajo de la Federación de Kartismo. Hoy cubre la home pública, el
+panel de directiva, el portal del piloto y la consulta pública de licencias, sin
+backend: los datos viven en `localStorage`.
+
+Códigos de prueba: `FK-2027-KHT6C4` (Valentina Ríos), `LIC-SEM01` (licencia
+vigente), `LIC-SEM02` (suspendida) y `LIC-SEM03` (vencida).
+
 ## Qué incluye
 
 - **Home** (`/`) — hero, ticker del calendario, calendario de la temporada, pistas

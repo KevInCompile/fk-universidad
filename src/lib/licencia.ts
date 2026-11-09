@@ -6,7 +6,7 @@
  * vigente, vencida o suspendida.
  */
 
-import type { Licencia } from "./types";
+import type { Estado, Licencia, Piloto } from "./types";
 
 /** Estados que ve el público en la consulta de licencias. */
 export type EstadoPublicoLicencia =
@@ -87,4 +87,61 @@ export function estadoPublicoLicencia(
 /** true cuando la licencia habilita al piloto para competir. */
 export function licenciaHabilita(estado: EstadoPublicoLicencia): boolean {
   return estado === "vigente";
+}
+
+/** Cómo se resolvió la consulta del público. */
+export type ModoConsultaLicencia = "licencia" | "piloto";
+
+export interface ResultadoConsultaLicencia {
+  licencia: Licencia;
+  piloto?: Piloto;
+  /** Por qué se encontró: por el número de licencia o por el identificador del piloto. */
+  modo: ModoConsultaLicencia;
+}
+
+/**
+ * Busca la licencia que corresponde a lo que escribió el público.
+ *
+ * Acepta dos identificaciones, porque son las dos que hay en la mano:
+ * - el número o código de licencia ("LIC-ABC12", "FEDKART-LIC-LIC-ABC12");
+ * - el identificador único del piloto ("FK-2027-ABC123"), que es lo que
+ *   aparece en el panel del piloto y en la acreditación.
+ */
+export function buscarLicenciaPorConsulta(
+  estado: Estado,
+  codigoIngresado: string,
+): ResultadoConsultaLicencia | undefined {
+  const codigo = normalizarCodigoLicencia(codigoIngresado);
+  if (!codigo) return undefined;
+
+  const licencia = estado.licencias.find(
+    (item) => normalizarCodigoLicencia(item.id) === codigo,
+  );
+  if (licencia) {
+    return {
+      licencia,
+      piloto: estado.pilotos.find((item) => item.id === licencia.pilotoId),
+      modo: "licencia",
+    };
+  }
+
+  const piloto = estado.pilotos.find(
+    (item) => normalizarCodigoLicencia(item.id) === codigo,
+  );
+  if (!piloto) return undefined;
+
+  const licenciasDelPiloto = estado.licencias.filter((item) => item.pilotoId === piloto.id);
+  if (licenciasDelPiloto.length === 0) return undefined;
+
+  // Si tiene varias, se muestra la que está vigente (o suspendida) y, si no,
+  // la más reciente.
+  const prioridad = (item: Licencia): number =>
+    item.estado === "activa" ? 3 : item.estado === "suspendida" ? 2 : 1;
+  const elegida = [...licenciasDelPiloto].sort((a, b) => {
+    const diferencia = prioridad(b) - prioridad(a);
+    if (diferencia !== 0) return diferencia;
+    return b.solicitadaEn.localeCompare(a.solicitadaEn);
+  })[0];
+
+  return { licencia: elegida, piloto, modo: "piloto" };
 }

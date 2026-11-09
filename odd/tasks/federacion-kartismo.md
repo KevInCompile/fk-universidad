@@ -68,6 +68,8 @@ Contrato compartido (lo escribe el orquestador, no los workers): `src/lib/types.
 
 - **L10** — 2026-11-08 — Verificación de S10: `npm run build` (24 páginas, exit 0), `npx vitest run` (7 archivos, 88 pruebas, verde) y E2E en navegador real (44 comprobaciones, 0 fallos) cubriendo los tres estados públicos, el código desconocido, la consulta por enlace, la suspensión desde el panel y su reflejo en la consulta, y el QR del carné; chequeo responsive de 15 rutas (390 px) sin desbordes ni errores JS.
 
+- **L11** — 2026-11-08 — "El boton de verificar licencia no deja, el boton no funciona. anota este código como prueba y muestra los datos que serian de valentina rios: FK-2027-KHT6C4" → el botón sí respondía, pero la consulta solo aceptaba el número de licencia (`LIC-...`); con el identificador del piloto (`FK-2027-...`) devolvía "no encontramos". Ahora la consulta acepta ambas identificaciones (`buscarLicenciaPorConsulta` en `src/lib/licencia.ts`) y la interfaz lo aclara. `FK-2027-KHT6C4` queda anotado como código de prueba de Valentina Ríos (identificador semilla).
+
 ## Notas de implementación
 
 - **D2 aplicado como HTML imprimible**: `/piloto/licencia-activa` es una vista con `@media print` (fondo blanco, texto negro, navegación oculta) y botón `window.print()`; el PDF se obtiene con "Guardar como PDF" del navegador.
