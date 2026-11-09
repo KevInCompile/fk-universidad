@@ -1,3 +1,5 @@
 # Federación de Kartismo
 
-Prototipo web (Astro + Tailwind v4) de la federación de kartismo: home pública, panel administrativo para directiva y portal para pilotos.
+Prototipo de la Federación de Kartismo realizado para el trabajo de proyecto de software de la universidad.
+
+Stack: Astro.
